@@ -1,0 +1,43 @@
+/ ambiente virtual
+.venv/
+venv/
+env/
+ENV/
+*.egg-info/
+
+/ itens em cache py
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+/ ide ambiente de desenv
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+
+/ dados locais, não mandamos para o git
+data/sessions/
+data/vectorstore/
+data/corpus/
+
+/ variaveis de ambiente
+.env
+!.env.example
+
+/ logs
+*.log
+
+/ testadando
+.pytest_cache/
+.coverage
+htmlcov/
+
+/ note
+.ipynb_checkpoints/
+
+

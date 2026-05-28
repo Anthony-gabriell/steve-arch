@@ -3,7 +3,7 @@ from pydantic_settings import BaseSettings
 class Settings(BaseSettings):
     # API Cada atributo é uma variável que será lida do .env
     anthropic_api_key: str # ← isso diz "essa variável é um string"
-    model_name: str = "claude-sonnet-4-20250514"
+    model_name: str = "claude-sonnet-4-5"
     max_tokens: int = 4096
     temperature: float = 0.7
 

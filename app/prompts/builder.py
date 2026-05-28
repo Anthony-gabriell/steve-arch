@@ -1,70 +1,83 @@
 """
-Função que controi o system prompt final combinando base + fragmentos.
+Função que constrói o system prompt final combinando base + fragmentos.
 É o único arquivo que sabe "quais pedaços usar em qual situação".
 """
 
 from typing import Optional, Dict, Any
-from app.prompts.base import ALBERT_BASE_SYSTEM_PROMPT
+from app.prompts.base import STEVE_BASE_SYSTEM_PROMPT
 from app.prompts.fragments import (
     REASONING_TRANSPARENCY_FRAGMENT,
-    PHYSICS_EXAMPLES_FRAGMENT,
     RAG_CONTEXT_FRAGMENT,
-    CONSCIOUSNESS_FRAGMENT,
+    AREA_CONTEXT_FRAGMENT,
     TOOL_USAGE_FRAGMENT,
 )
 
+
 def build_system_prompt(
     include_reasoning_transparency: bool = True,
-    include_extra_examples: bool = False,
     include_tool_usage: bool = False,
     include_rag_context: bool = False,
     rag_context: Optional[str] = None,
-    include_consciousness: bool = False,
-    consciousness_data: Optional[Dict[str,Any]] = None,
+    include_area_context: bool = False,
+    area_context: Optional[Dict[str, Any]] = None,
 ) -> str:
+    """
+    Monta o System Prompt final de forma modular.
+    Começamos com a base imutável (o DNA do Steve Arch).
+    """
 
-    # Monta o System Prompt final de forma modular.
-    # Começamos com a base imutável (o DNA do Albert)
-    parts = [ALBERT_BASE_SYSTEM_PROMPT]
+    parts = [STEVE_BASE_SYSTEM_PROMPT]
 
-    # Injetamos transparência de raciocínio se solicitado
+    # Transparência de raciocínio — Steve mostra o raciocínio antes da resposta
     if include_reasoning_transparency:
         parts.append(REASONING_TRANSPARENCY_FRAGMENT)
 
-    # Injetamos exemplos extras para reforçar o comportamento
-    if include_extra_examples:
-        parts.append(PHYSICS_EXAMPLES_FRAGMENT)
-
-    # Injetamos instruções de uso de ferramentas (como usr uma HP50g)
+    # Instruções de uso de ferramentas (diagnóstico, validação, projeção)
     if include_tool_usage:
         parts.append(TOOL_USAGE_FRAGMENT)
 
-    # Injetamos contexto recuperado (Futuramente vai receber o RAG)
+    # Contexto RAG — documentação técnica da área do usuário (fase 2)
     if include_rag_context and rag_context:
         formatted_rag = RAG_CONTEXT_FRAGMENT.format(context=rag_context)
         parts.append(formatted_rag)
 
-    # Injetamos estado de consciência (Essa parte eu vou construir ainda fase 4 ou 5)
-    if include_consciousness and consciousness_data:
-        formatted_consciousness = CONSCIOUSNESS_FRAGMENT.format(
-            mood=consciousness_data.get("mood", "neutral"),
-            recent_topics=consciousness_data.get("recent_topics", "none"),
-            environment=consciousness_data.get("environment", "stable"),
+    # Contexto de área — injeta especificidades da área selecionada no onboarding
+    if include_area_context and area_context:
+        formatted_area = AREA_CONTEXT_FRAGMENT.format(
+            area=area_context.get("area", "geral"),
+            restrictions=area_context.get("restrictions", "nenhuma identificada"),
+            common_tools=area_context.get("common_tools", "não especificado"),
         )
-        parts.append(formatted_consciousness)
+        parts.append(formatted_area)
 
-    # Junta todos os blocos com espaçamento duplo para clareza
     return "\n\n".join(parts)
 
+
 def get_basic_system_prompt() -> str:
-
-    # Atalho para o V0.1 do Albert.
-    # Ativa apenas o necessário para a fase inicial: Personalidade + Raciocínio + Ferramentas.
-
+    """
+    Atalho para o V1.0 do Steve Arch.
+    Ativa apenas o necessário para a fase inicial: DNA + Raciocínio + Ferramentas.
+    """
     return build_system_prompt(
         include_reasoning_transparency=True,
         include_tool_usage=True,
-        include_extra_examples=False,
         include_rag_context=False,
-        include_consciousness=False
+        include_area_context=False,
+    )
+
+
+def get_area_system_prompt(area: str, common_tools: str, restrictions: str = "") -> str:
+    """
+    Atalho para análise com contexto de área específica.
+    Usado quando o usuário seleciona uma área no onboarding.
+    """
+    return build_system_prompt(
+        include_reasoning_transparency=True,
+        include_tool_usage=True,
+        include_area_context=True,
+        area_context={
+            "area": area,
+            "common_tools": common_tools,
+            "restrictions": restrictions,
+        },
     )

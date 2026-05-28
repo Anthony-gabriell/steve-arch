@@ -1,0 +1,55 @@
+/* ========================================
+   ATECH — Components
+   ======================================== */
+
+/* ============================
+   FILTER BAR
+   ============================ */
+.filter-bar {
+  display: flex; flex-wrap: wrap; justify-content: center;
+  gap: var(--space-xs); margin-bottom: var(--space-lg);
+}
+
+.filter-btn {
+  padding: var(--space-xs) var(--space-md);
+  border: 1px solid rgba(46, 232, 176, 0.2);
+  border-radius: 2px;
+  background: transparent;
+  color: var(--text-second);
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.filter-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  box-shadow: 0 0 15px rgba(46, 232, 176, 0.4);
+}
+
+.filter-btn.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--bg-deep);
+  font-weight: 700;
+  box-shadow: 0 0 15px rgba(46, 232, 176, 0.4);
+}
+
+/* ============================
+   FILTER EMPTY STATE
+   ============================ */
+.filter-empty-state {
+  display: none;
+  text-align: center;
+  padding: var(--space-2xl) 0;
+}
+
+.filter-empty-message {
+  color: var(--accent-muted);
+  font-size: 0.9rem;
+  font-weight: 400;
+  letter-spacing: 0.05em;
+}

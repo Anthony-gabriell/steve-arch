@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Steve Arch — O arquiteto de soluções que te ajuda a escalar. Funcionar é o começo. Escalar é o objetivo.">
+  <title>Steve Arch — Funcionar é o começo. Escalar é o objetivo.</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/png" href="../Image/logo2.png">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/animations.css">
+  <script defer src="js/neural-bg.js"></script>
+  <script defer src="js/main.js"></script>
+</head>
+<body>
+  <canvas id="neural-canvas" aria-hidden="true"></canvas>
+  <div class="page-content">
+    <nav class="navbar" id="navbar">
+      <div class="nav-left">
+        <a href="index.html" class="nav-logo-link">
+          <img src="../Image/logo.png" alt="Steve Arch" class="atech-tree-img">
+          <svg class="atech-logo-svg" width="200" height="36" viewBox="0 0 200 36" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="logo-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#2EE8B0"/>
+                <stop offset="100%" stop-color="#38BDF8"/>
+              </linearGradient>
+            </defs>
+            <text id="atech-full" x="4" y="28"
+              font-family="'Arial Black', sans-serif"
+              font-size="24" font-weight="700"
+              fill="url(#logo-grad)"
+              letter-spacing="2"
+              style="opacity:0"
+            >STEVE ARCH</text>
+          </svg>
+        </a>
+      </div>
+      <div class="nav-right">
+        <a href="produtos.html" class="btn-cta-nav">Analisar minha solução</a>
+        <button class="hamburger" id="hamburger" aria-label="Menu">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </nav>
+    <div class="menu-overlay" id="menuOverlay">
+      <button class="menu-close" id="menuClose">✕</button>
+      <nav class="menu-overlay-nav">
+        <a href="index.html" class="menu-link">Home</a>
+        <a href="produtos.html" class="menu-link">Analisar solução</a>
+        <a href="contato.html" class="menu-link">Contato</a>
+      </nav>
+    </div>
+    <main>
+      <section class="hero" aria-labelledby="hero-title">
+        <span class="hero-tag fade-in">Funcionar é o começo, escalar é o objetivo.</span>
+        <h1 id="hero-title" class="fade-in">Arquitetura escalável<br>Diagnóstico preciso</h1>
+        <p class="hero-subtitle fade-in">Descreva sua solução. O Steve te mostra o caminho para crescer.</p>
+        <div class="hero-actions fade-in">
+          <a href="produtos.html" class="btn btn--primary">Analisar minha solução</a>
+          <a href="contato.html" class="btn btn--outline">Falar com a equipe</a>
+        </div>
+        <div class="hero-particles-wrap">
+          <canvas id="hero-particles" aria-hidden="true"></canvas>
+        </div>
+        <div class="hero__scroll scroll-indicator" aria-hidden="true">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 5v14m0 0l-5-5m5 5 5-5" stroke="rgba(46,232,176,0.3)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+      </section>
+      <section class="section" aria-labelledby="whom-title">
+        <div class="container">
+          <h2 id="whom-title" class="section__title fade-in">Feito para quem escolheu crescer</h2>
+          <p class="section__subtitle subtitle fade-in">Dois perfis. Um objetivo: sair do funciona para o escala.</p>
+          <div class="accordion-audience fade-in">
+            <div class="acc-item fade-in" data-index="0">
+              <div class="acc-header">
+                <span class="acc-number">01</span>
+                <h3 class="acc-title">Vibe Coders</h3>
+                <span class="acc-icon">+</span>
+              </div>
+              <div class="acc-body">
+                <p>Você criou uma solução com IA e ela funciona. Mas você sabe que se crescer, vai quebrar. O Steve Arch analisa o que você construiu, aponta onde vai travar e mostra o caminho para chegar a mil usuários sem refazer tudo do zero.</p>
+                <ul class="acc-list">
+                  <li>Diagnóstico dos gargalos da sua solução</li>
+                  <li>Stack recomendada para o seu contexto</li>
+                  <li>Próximo passo validado antes de executar</li>
+                  <li>Projeção de onde sua solução pode chegar</li>
+                </ul>
+                <a href="produtos.html" class="acc-cta">Analisar minha solução →</a>
+              </div>
+            </div>
+            <div class="acc-item fade-in" data-index="1">
+              <div class="acc-header">
+                <span class="acc-number">02</span>
+                <h3 class="acc-title">Empreendedores Digitais</h3>
+                <span class="acc-icon">+</span>
+              </div>
+              <div class="acc-body">
+                <p>Você tem uma ideia ou um produto nascente e quer construir certo desde o início. O Steve não te dá um passo a passo genérico. Ele entende o seu problema real e projeta a arquitetura certa para a escala que você quer atingir.</p>
+                <ul class="acc-list">
+                  <li>Arquitetura pensada para crescimento</li>
+                  <li>Ferramentas certas para o seu momento</li>
+                  <li>Visão do potencial financeiro da solução</li>
+                  <li>Decisões técnicas com impacto de negócio</li>
+                </ul>
+                <a href="produtos.html" class="acc-cta">Começar do jeito certo →</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <section class="section" aria-labelledby="offerings-title">
+        <div class="container">
+          <h2 id="offerings-title" class="section__title fade-in">O que o Steve entrega</h2>
+          <p class="section__subtitle subtitle fade-in">Não é um chatbot. É um arquiteto treinado para o seu problema específico.</p>
+          <div class="offerings-grid">
+            <article class="offering-card fade-in delay-1">
+              <div class="offering-card__icon" aria-hidden="true">
+                <svg width="20" height="20" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <defs><linearGradient id="ig-ebook" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#2EE8B0"/><stop offset="100%" stop-color="#00D1FF"/></linearGradient></defs>
+                  <path d="M6 6h18l6 6v18a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2z" stroke="url(#ig-ebook)" stroke-width="1.5" fill="none"/>
+                  <path d="M24 6v6h6" stroke="url(#ig-ebook)" stroke-width="1.5"/>
+                  <line x1="10" y1="20" x2="22" y2="20" stroke="url(#ig-ebook)" stroke-width="1" stroke-linecap="round"/>
+                  <line x1="10" y1="24" x2="22" y2="24" stroke="url(#ig-ebook)" stroke-width="1" stroke-linecap="round"/>
+                  <line x1="10" y1="28" x2="18" y2="28" stroke="url(#ig-ebook)" stroke-width="1" stroke-linecap="round"/>
+                </svg>
+              </div>
+              <h3>Diagnóstico de Gargalos</h3>
+              <p>Steve analisa sua solução e aponta exatamente onde ela vai travar quando crescer: banco, auth, infraestrutura, acoplamento.</p>
+              <a href="produtos.html" class="offering-card__link">Analisar agora &rarr;</a>
+            </article>
+            <article class="offering-card fade-in delay-2">
+              <div class="offering-card__icon" aria-hidden="true">
+                <svg width="20" height="20" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <defs><linearGradient id="ig-trade" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#2EE8B0"/><stop offset="100%" stop-color="#00D1FF"/></linearGradient></defs>
+                  <circle cx="18" cy="18" r="12" stroke="url(#ig-trade)" stroke-width="1.5" fill="none"/>
+                  <circle cx="18" cy="18" r="4" fill="url(#ig-trade)"/>
+                  <line x1="18" y1="4" x2="18" y2="10" stroke="url(#ig-trade)" stroke-width="1.5" stroke-linecap="round"/>
+                  <line x1="18" y1="26" x2="18" y2="32" stroke="url(#ig-trade)" stroke-width="1.5" stroke-linecap="round"/>
+                  <line x1="4" y1="18" x2="10" y2="18" stroke="url(#ig-trade)" stroke-width="1.5" stroke-linecap="round"/>
+                  <line x1="26" y1="18" x2="32" y2="18" stroke="url(#ig-trade)" stroke-width="1.5" stroke-linecap="round"/>
+                </svg>
+              </div>
+              <h3>Stack sob Medida</h3>
+              <p>Sem receita genérica. Steve recomenda as ferramentas certas para o seu contexto, seu prazo e seu objetivo de escala.</p>
+              <a href="produtos.html" class="offering-card__link">Ver recomendações &rarr;</a>
+            </article>
+            <article class="offering-card fade-in delay-3">
+              <div class="offering-card__icon" aria-hidden="true">
+                <svg width="20" height="20" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <defs><linearGradient id="ig-solucoes" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#2EE8B0"/><stop offset="100%" stop-color="#00D1FF"/></linearGradient></defs>
+                  <rect x="4" y="4" width="12" height="12" rx="2" stroke="url(#ig-solucoes)" stroke-width="1.5" fill="none"/>
+                  <rect x="20" y="4" width="12" height="12" rx="2" stroke="url(#ig-solucoes)" stroke-width="1.5" fill="none"/>
+                  <rect x="4" y="20" width="12" height="12" rx="2" stroke="url(#ig-solucoes)" stroke-width="1.5" fill="none"/>
+                  <rect x="20" y="20" width="12" height="12" rx="2" stroke="url(#ig-solucoes)" stroke-width="1.5" fill="none"/>
+                </svg>
+              </div>
+              <h3>Projeção de Potencial</h3>
+              <p>Steve mostra onde sua solução pode chegar em usuários, receita e impacto. Com as decisões técnicas certas tomadas hoje.</p>
+              <a href="produtos.html" class="offering-card__link">Ver projeção &rarr;</a>
+            </article>
+          </div>
+        </div>
+      </section>
+      <section class="final-cta" aria-labelledby="final-cta-title">
+        <div class="container">
+          <h2 id="final-cta-title" class="final-cta__title fade-in">Sua solução precisa de mais do que funcionar.</h2>
+          <p class="final-cta__subtitle subtitle fade-in">Descreva o que você construiu. Steve cuida do resto.</p>
+          <a href="produtos.html" class="btn btn--primary fade-in">Analisar minha solução</a>
+        </div>
+      </section>
+    </main>
+    <section class="cta-strip">
+      <div class="cta-strip-inner">
+        <div class="cta-strip-text fade-in">
+          <span class="cta-strip-tag">Pronto para escalar de verdade?</span>
+          <h2 class="cta-strip-title">Funcionar é o começo.<br>Escalar é o objetivo.</h2>
+        </div>
+        <div class="cta-strip-actions fade-in">
+          <a href="produtos.html" class="btn-primary">Analisar minha solução</a>
+          <a href="contato.html" class="btn-secondary">Falar com a equipe</a>
+        </div>
+      </div>
+    </section>
+    <footer class="footer">
+      <div class="footer-inner">
+        <span class="footer-copy">
+          <img src="../Image/logo.png" alt="Steve Arch" class="footer-logo-icon">
+          © 2025 Steve Arch. Todos os direitos reservados.
+        </span>
+        <nav class="footer-nav">
+          <a href="index.html">Home</a>
+          <a href="produtos.html">Analisar solução</a>
+          <a href="contato.html">Contato</a>
+        </nav>
+      </div>
+    </footer>
+  </div>
+<script>
+(function() {
+  function animateLogo() {
+    var el = document.getElementById('atech-full');
+    if (!el) return;
+    var text = 'STEVE ARCH';
+    var letters = [];
+    for (var i = 1; i <= text.length; i++) { letters.push(text.substring(0, i)); }
+    var i = 0;
+    el.style.opacity = '1';
+    function type() {
+      if (i < letters.length) { el.textContent = letters[i]; i++; setTimeout(type, 120); }
+      else { setTimeout(erase, 1200); }
+    }
+    function erase() {
+      var j = text.length;
+      function del() {
+        if (j > 0) { el.textContent = text.substring(0, j); j--; setTimeout(del, 80); }
+        else { el.textContent = ''; setTimeout(animateLogo, 500); }
+      }
+      del();
+    }
+    type();
+  }
+  if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', animateLogo); }
+  else { animateLogo(); }
+})();
+</script>
+<script>
+(function() {
+  var canvas = document.getElementById('hero-particles');
+  if (!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var w, h, particles;
+  var COLORS = [[46,232,176],[0,209,255],[30,80,255]];
+  var PARTICLE_COUNT = 40;
+  function resize() { var p = canvas.parentElement; w = canvas.width = p.offsetWidth; h = canvas.height = p.offsetHeight; }
+  function init() {
+    resize(); particles = [];
+    for (var i = 0; i < PARTICLE_COUNT; i++) {
+      var c = COLORS[Math.floor(Math.random()*COLORS.length)];
+      particles.push({x:Math.random()*w,y:Math.random()*h,vx:(Math.random()-0.5)*0.6,vy:(Math.random()-0.5)*0.6,r:Math.random()*1.8+0.5,c:c,a:Math.random()*0.3+0.15});
+    }
+  }
+  function draw() {
+    ctx.clearRect(0,0,w,h);
+    for (var i = 0; i < particles.length; i++) {
+      var p = particles[i]; p.x+=p.vx; p.y+=p.vy;
+      if(p.x<0)p.x=w; if(p.x>w)p.x=0; if(p.y<0)p.y=h; if(p.y>h)p.y=0;
+      ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+      ctx.fillStyle='rgba('+p.c[0]+','+p.c[1]+','+p.c[2]+','+p.a+')'; ctx.fill();
+      for (var j=i+1;j<particles.length;j++) {
+        var q=particles[j]; var dx=p.x-q.x; var dy=p.y-q.y; var dist=dx*dx+dy*dy;
+        if(dist<10000){var alpha=0.08*(1-dist/10000);ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.lineTo(q.x,q.y);ctx.strokeStyle='rgba(46,232,176,'+alpha+')';ctx.lineWidth=0.5;ctx.stroke();}
+      }
+    }
+    requestAnimationFrame(draw);
+  }
+  init(); draw(); window.addEventListener('resize',function(){resize();});
+})();
+</script>
+</body>
+</html>

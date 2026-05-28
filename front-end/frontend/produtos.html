@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Steve Arch — Analise sua solução, escolha seu plano e escale com arquitetura real.">
+  <title>Steve Arch — Analisar Solução</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/png" href="../Image/logo2.png">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/animations.css">
+  <script defer src="js/neural-bg.js"></script>
+  <script defer src="js/main.js"></script>
+</head>
+<body>
+  <canvas id="neural-canvas" aria-hidden="true"></canvas>
+  <div class="page-content">
+    <nav class="navbar" id="navbar">
+      <div class="nav-left">
+        <a href="index.html" class="nav-logo-link">
+          <img src="../Image/logo.png" alt="Steve Arch" class="atech-tree-img">
+          <svg class="atech-logo-svg" width="200" height="36" viewBox="0 0 200 36" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="logo-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#2EE8B0"/>
+                <stop offset="100%" stop-color="#38BDF8"/>
+              </linearGradient>
+            </defs>
+            <text id="atech-full" x="4" y="28" font-family="'Arial Black', sans-serif" font-size="24" font-weight="700" fill="url(#logo-grad)" letter-spacing="2" style="opacity:0">STEVE ARCH</text>
+          </svg>
+        </a>
+      </div>
+      <div class="nav-right">
+        <a href="produtos.html" class="btn-cta-nav">Analisar minha solução</a>
+        <button class="hamburger" id="hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
+      </div>
+    </nav>
+    <div class="menu-overlay" id="menuOverlay">
+      <button class="menu-close" id="menuClose">✕</button>
+      <nav class="menu-overlay-nav">
+        <a href="index.html" class="menu-link">Home</a>
+        <a href="produtos.html" class="menu-link">Analisar solução</a>
+        <a href="contato.html" class="menu-link">Contato</a>
+      </nav>
+    </div>
+    <main>
+      <section class="page-hero" aria-labelledby="solutions-title">
+        <div class="container">
+          <h2 id="solutions-title" class="fade-in">Escolha como o Steve te ajuda a crescer</h2>
+          <p class="fade-in">Três planos. Um objetivo: escalar o que você construiu.</p>
+        </div>
+      </section>
+      <div class="container">
+        <div class="filter-bar fade-in" role="group" aria-label="Filtrar por plano">
+          <button class="filter-btn active" data-filter="todos">TODOS</button>
+          <button class="filter-btn" data-filter="solucoes">PLANOS</button>
+          <button class="filter-btn" data-filter="conhecimento">EM BREVE</button>
+        </div>
+        <div class="product-grid">
+
+          <!-- Steve Free -->
+          <article class="product-card fade-in delay-1" data-category="solucoes">
+            <span class="product-card__badge">Gratuito</span>
+            <h3>Steve Arch Free</h3>
+            <p>Descreva sua solução e receba um diagnóstico inicial com os principais gargalos identificados e as ferramentas recomendadas para o seu contexto.</p>
+            <a href="#" class="btn btn--primary">Analisar agora</a>
+          </article>
+
+          <!-- Steve Pro -->
+          <article class="product-card fade-in delay-2" data-category="solucoes">
+            <span class="product-card__badge">Em breve</span>
+            <h3>Steve Pro</h3>
+            <p>Diagnóstico completo com projeção financeira detalhada, roadmap de escala por fases e validação técnica de cada passo antes da execução. Para quem está construindo a sério.</p>
+            <a href="contato.html" class="btn btn--outline">Entrar na lista</a>
+          </article>
+
+          <!-- Steve Enterprise -->
+          <article class="product-card fade-in delay-1" data-category="solucoes">
+            <span class="product-card__badge">Em breve</span>
+            <h3>Steve Enterprise</h3>
+            <p>Arquitetura personalizada para empresas com soluções complexas. Sessões dedicadas, análise de stack existente e plano de migração sem downtime.</p>
+            <a href="contato.html" class="btn btn--outline">Falar com a equipe</a>
+          </article>
+
+          <!-- Em breve: Steve Academy -->
+          <article class="product-card disabled fade-in delay-2" data-category="conhecimento">
+            <span class="product-card__badge">Em breve</span>
+            <h3>Steve Academy</h3>
+            <p>Aprenda a construir soluções que escalam desde o início. Conteúdo técnico baseado nos padrões que o Steve Arch usa para diagnosticar e corrigir arquiteturas.</p>
+            <a href="contato.html" class="btn btn--outline">Fique por dentro</a>
+          </article>
+
+          <!-- Em breve: Guias técnicos -->
+          <article class="product-card disabled fade-in delay-1" data-category="conhecimento">
+            <span class="product-card__badge">Em breve</span>
+            <h3>Guias de Arquitetura</h3>
+            <p>Guias técnicos por área: como estruturar soluções escaláveis em Finanças, Medicina, Direito, Logística e mais. PDF completo com exemplos reais.</p>
+            <a href="contato.html" class="btn btn--outline">Fique por dentro</a>
+          </article>
+
+        </div>
+      </div>
+    </main>
+    <footer class="footer">
+      <div class="footer-inner">
+        <span class="footer-copy">
+          <img src="../Image/logo.png" alt="Steve Arch" class="footer-logo-icon">
+          © 2025 Steve Arch. Todos os direitos reservados.
+        </span>
+        <nav class="footer-nav">
+          <a href="index.html">Home</a>
+          <a href="produtos.html">Analisar solução</a>
+          <a href="contato.html">Contato</a>
+        </nav>
+      </div>
+    </footer>
+  </div>
+<script>
+(function() {
+  function animateLogo() {
+    var el = document.getElementById('atech-full');
+    if (!el) return;
+    var text = 'STEVE ARCH';
+    var letters = [];
+    for (var i = 1; i <= text.length; i++) { letters.push(text.substring(0, i)); }
+    var i = 0;
+    el.style.opacity = '1';
+    function type() {
+      if (i < letters.length) { el.textContent = letters[i]; i++; setTimeout(type, 120); }
+      else { setTimeout(erase, 1200); }
+    }
+    function erase() {
+      var j = text.length;
+      function del() {
+        if (j > 0) { el.textContent = text.substring(0, j); j--; setTimeout(del, 80); }
+        else { el.textContent = ''; setTimeout(animateLogo, 500); }
+      }
+      del();
+    }
+    type();
+  }
+  if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', animateLogo); }
+  else { animateLogo(); }
+})();
+</script>
+</body>
+</html>

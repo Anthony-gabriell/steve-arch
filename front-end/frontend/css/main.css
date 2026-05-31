@@ -1,5 +1,5 @@
 /* ========================================
-   ATECH — Intensidade +2
+   Intensidade +2
    Futurista, vibrante, com DNA verde
    ======================================== */
 
@@ -243,6 +243,21 @@ p { color: var(--text-second); font-weight: 300; line-height: 1.6; }
   line-height: 1;
 }
 .menu-link:hover { color: #2EE8B0; }
+
+/* ========================================
+   STEP HEADER (
+   ======================================== */
+.step-header {
+  position: fixed;
+  top: 68px; left: 0; right: 0;
+  z-index: 80;
+  background: rgba(6,8,9,0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  padding: 16px 48px 14px;
+  border-bottom: 1px solid rgba(46,232,176,0.07);
+}
+
 
 /* ============================
    ACCORDION AUDIENCE

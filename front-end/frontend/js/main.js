@@ -1,5 +1,4 @@
 /**
- * ATECH — Main JavaScript
  * - IntersectionObserver for fade-in animations
  * - Navbar scroll (solid background)
  * - Mobile hamburger menu toggle

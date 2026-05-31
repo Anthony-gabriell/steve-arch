@@ -1,5 +1,4 @@
 """
-Routes do Steve Arch — FastAPI
 Endpoint principal: recebe respostas do onboarding e retorna diagnóstico estruturado.
 """
 
@@ -8,7 +7,7 @@ import logging
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
-from typing import Optional
+from typing import Optional, List
 from anthropic import Anthropic
 
 from app.core.config import settings
@@ -29,17 +28,27 @@ class OnboardingData(BaseModel):
     step7: Optional[str] = None   # dedicação
     toolOther: Optional[str] = None  # ferramenta customizada
     tools: Optional[list] = None  # lista de ferramentas selecionadas
+    nomeSolucao: Optional[str] = None  # solution name from onboarding step 0
+    ja_cobra: Optional[bool] = None
+    ticket_atual: Optional[float] = None  # current price in BRL
+    usuarios_pagantes: Optional[int] = None
 
 
 class DiagnosticoResponse(BaseModel):
     resumo_executivo: str
     score_escalabilidade: int
+    score_label: str          # qualitative label, no number shown to user
+    score_narrativa: str      # one contextual sentence, max 140 chars
+    problema_detalhado: str   # 2-3 paragraphs analyzing the problem from an architect's perspective
+    solucao_detalhada: str    # 2-3 paragraphs evaluating the proposed solution
     gargalos: list
     stack_recomendada: list
-    solucoes_similares: list
     roadmap: list
     projecao_financeira: dict
     proximo_passo: str
+    proximos_passos_fila: list  # 4-6 sequential next steps
+    riscos_fundamentais: list   # 2-4 fundamental risks
+    solucoes_similares: Optional[list] = None  # DEPRECATED, kept for frontend compat
 
 
 # ─── PROMPT BUILDER ───────────────────────────────────────────────────────────
@@ -89,6 +98,24 @@ def build_diagnostic_prompt(data: OnboardingData) -> str:
     usuarios = USERS_MAP.get(data.step6, data.step6 or "não informado")
     dedicacao = DEDICATION_MAP.get(data.step7, data.step7 or "não informada")
 
+    # Monetization context
+    monetizacao_info = ""
+    if data.ja_cobra:
+        monetizacao_info = f"""
+**Already charging:** Yes
+**Current ticket:** R$ {data.ticket_atual or 'not specified'}/user
+**Paying users:** {data.usuarios_pagantes or 'not specified'}"""
+    else:
+        monetizacao_info = "**Already charging:** No"
+
+    # Extra instruction when the user already monetizes
+    monetizacao_instrucao = ""
+    if data.ja_cobra:
+        monetizacao_instrucao = (
+            "\n8. Use the declared ticket and paying users as anchors for the "
+            "financial projection instead of generic assumptions."
+        )
+
     return f"""You are Steve Arch, an expert solution architect specialized in scalable systems for non-technical founders and vibe coders.
 
 A user has completed the onboarding process. Here is their complete context:
@@ -100,6 +127,7 @@ A user has completed the onboarding process. Here is their complete context:
 **Monthly investment available:** {investimento}
 **Current users:** {usuarios}
 **Weekly dedication:** {dedicacao}
+{monetizacao_info}
 
 Your task is to generate a complete architectural diagnosis of this solution.
 
@@ -110,6 +138,7 @@ CRITICAL INSTRUCTIONS:
 4. Write all text fields in Brazilian Portuguese.
 5. The score_escalabilidade must be an honest assessment (0-100) based on current tools and architecture.
 6. NEVER use technical jargon without explaining it in plain terms. Apply these replacements throughout all text fields:
+7. For problema_detalhado and solucao_detalhada, write technically dense prose. Minimum 400 characters each, maximum 900 characters each. Use paragraph breaks (\n\n) between paragraphs. No bullet lists, no markdown, just plain text with paragraph breaks.
    - OCR → "leitura automática de documentos"
    - billing → "cobrança automática"
    - multi-tenant → "separação de dados por cliente"
@@ -121,12 +150,17 @@ CRITICAL INSTRUCTIONS:
    - rate limit → "limite de uso simultâneo"
    - pipeline → "fluxo automatizado"
    - Always write as if explaining to someone who has never programmed. Be technical in depth but simple in language.
+7. Map score_escalabilidade to one of exactly these labels in score_label: 'Precisa de base sólida' (0-30), 'Boa base, ajustes críticos' (31-60), 'Pronto para crescer' (61-80), 'Arquitetura sólida' (81-100).{monetizacao_instrucao}
 
 Return this exact JSON structure:
 
 {{
   "resumo_executivo": "2-3 sentences summarizing the solution, its main strength, and the critical challenge to overcome",
   "score_escalabilidade": <integer 0-100>,
+  "score_label": "one of exactly: 'Precisa de base sólida' | 'Boa base, ajustes críticos' | 'Pronto para crescer' | 'Arquitetura sólida', mapped from the score ranges above. No number shown to user.",
+  "score_narrativa": "one contextual sentence, max 140 chars, explaining why the solution got this label. Example: 'Resolve dor real mas precisa de fundação técnica antes de pensar em escala.'",
+  "problema_detalhado": "2-3 paragraphs analyzing the problem in depth. Why it is a real and recurring pain, in what context it manifests most strongly, who suffers most from it, and what makes it technically complex to solve. Write as an architect explaining the problem to a non-technical founder. Be specific to the user's area and described pain. Each paragraph separated by \\n\\n. No bullet lists, only flowing prose.",
+  "solucao_detalhada": "2-3 paragraphs evaluating the proposed solution. Whether the approach makes technical sense, what its strengths are given the user's tools and budget, where it will likely succeed early, and what specific architectural decisions need attention. Write as an architect doing a peer review. Be specific, no generic startup advice. Each paragraph separated by \\n\\n. No bullet lists, only flowing prose.",
   "gargalos": [
     {{
       "titulo": "short gargalo title",
@@ -144,11 +178,12 @@ Return this exact JSON structure:
       "familiar": true | false
     }}
   ],
-  "solucoes_similares": [
+  "riscos_fundamentais": [
     {{
-      "descricao": "brief description of a similar solution pattern (no specific company names)",
-      "gargalo_que_enfrentou": "what scalability problem this type of solution typically faces",
-      "como_resolveu": "how this type of solution typically solved it"
+      "titulo": "risk title",
+      "descricao": "what can go wrong even if execution is good",
+      "mitigacao": "one concrete action to reduce this risk",
+      "severidade": "alta" | "media" | "baixa"
     }}
   ],
   "roadmap": [
@@ -182,8 +217,20 @@ Return this exact JSON structure:
     "modelo_sugerido": "suggested monetization model for this solution",
     "ticket_medio_sugerido": <integer in BRL>
   }},
-  "proximo_passo": "one single specific action the user must take right now. Not a list. One thing."
-}}"""
+  "proximo_passo": "one single specific action the user must take right now. Not a list. One thing.",
+  "proximos_passos_fila": [
+    {{
+      "ordem": 1,
+      "titulo": "step title",
+      "descricao": "what to do",
+      "criterio_conclusao": "how the user knows this step is done"
+    }}
+  ]
+}}
+
+ADDITIONAL FIELD GUIDANCE:
+- riscos_fundamentais: surface 2 to 4 fundamental risks that could kill the solution even if built well. Be honest, not motivational. Examples: weak retention in free apps, market saturation, regulatory risk, dependency on single channel.
+- proximos_passos_fila: generate 4 to 6 sequential next steps. Each step unlocks the next. The first step must match proximo_passo in substance. Each step has a clear completion criterion."""
 
 
 # ─── ENDPOINTS ────────────────────────────────────────────────────────────────
@@ -221,9 +268,11 @@ async def gerar_diagnostico(data: OnboardingData):
 
         # Valida campos obrigatórios
         required_fields = [
-            "resumo_executivo", "score_escalabilidade", "gargalos",
-            "stack_recomendada", "solucoes_similares", "roadmap",
-            "projecao_financeira", "proximo_passo"
+            "resumo_executivo", "score_escalabilidade", "score_label",
+            "score_narrativa", "problema_detalhado", "solucao_detalhada",
+            "gargalos", "stack_recomendada", "roadmap",
+            "projecao_financeira", "proximo_passo", "proximos_passos_fila",
+            "riscos_fundamentais"
         ]
         for field in required_fields:
             if field not in diagnostico:
@@ -231,6 +280,20 @@ async def gerar_diagnostico(data: OnboardingData):
 
         # Garante que o score é inteiro entre 0 e 100
         diagnostico["score_escalabilidade"] = max(0, min(100, int(diagnostico["score_escalabilidade"])))
+
+        # Ensure score_label exists even if model forgot
+        valid_labels = [
+            "Precisa de base sólida",
+            "Boa base, ajustes críticos",
+            "Pronto para crescer",
+            "Arquitetura sólida"
+        ]
+        if diagnostico.get("score_label") not in valid_labels:
+            s = diagnostico["score_escalabilidade"]
+            if s <= 30: diagnostico["score_label"] = valid_labels[0]
+            elif s <= 60: diagnostico["score_label"] = valid_labels[1]
+            elif s <= 80: diagnostico["score_label"] = valid_labels[2]
+            else: diagnostico["score_label"] = valid_labels[3]
 
         return JSONResponse(content=diagnostico)
 

@@ -49,12 +49,18 @@
     }
     .btn-next.ready { opacity: 1; pointer-events: all; box-shadow: var(--glow-sm); }
     .btn-next.ready:hover { box-shadow: var(--glow); transform: translateY(-1px); }
-    .main { padding-top: 68px; padding-bottom: 80px; min-height: 100vh; display: flex; flex-direction: column; }
+    .main { padding-top: 80px; padding-bottom: 80px; min-height: 100vh; display: flex; flex-direction: column; }
     .chat-area { max-width: 680px; margin: 0 auto; width: 100%; padding: 44px 24px 20px; display: flex; flex-direction: column; }
     .step-question {
-      font-size: clamp(1.9rem, 3.5vw, 2.8rem); font-weight: 300; letter-spacing: 0.05em;
-      text-transform: uppercase; line-height: 1.12; margin-bottom: 32px;
-      animation: fadeUp 0.45s cubic-bezier(0.16,1,0.3,1) both;
+      font-size: clamp(0.85rem, 1.2vw, 1rem);
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      line-height: 1.2;
+      margin: 0;
+      color: var(--text-primary);
+      flex: 1;
+      text-align: center;
     }
     .step-question em { color: var(--accent); font-style: normal; }
     @keyframes fadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
@@ -159,6 +165,39 @@
       transition: all 0.18s; background: var(--bg-surface);
     }
     .name-sug:hover { border-color: rgba(46,232,176,0.3); color: var(--text-primary); background: var(--bg-elevated); }
+    /* CONTEXTUAL CHIPS */
+    .chip-wrap { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+    .chip {
+      padding: 10px 14px; border: 1px solid rgba(46,232,176,0.2); border-radius: 2px;
+      background: var(--bg-surface); font-size: 0.85rem; color: var(--text-primary);
+      cursor: pointer; transition: all 0.2s; font-family: 'Outfit', sans-serif;
+      animation: fadeUp 0.32s cubic-bezier(0.16,1,0.3,1) both;
+    }
+    .chip:hover { border-color: rgba(46,232,176,0.5); background: var(--bg-elevated); }
+    .chip.selected { border-color: #2EE8B0; background: rgba(46,232,176,0.08); color: #2EE8B0; }
+    .describe-link {
+      font-size: 0.78rem; color: var(--text-second); text-decoration: underline;
+      cursor: pointer; margin-top: 8px; display: inline-block; transition: color 0.2s;
+    }
+    .describe-link:hover { color: #2EE8B0; }
+    .steve-textarea:disabled { opacity: 0.5; cursor: not-allowed; }
+    /* MONETIZATION SUB-BLOCK */
+    .monetiz-block {
+      max-height: 0; opacity: 0; overflow: hidden; margin-top: 0;
+      transition: max-height 0.45s cubic-bezier(0.16,1,0.3,1), opacity 0.35s ease, margin-top 0.35s ease;
+    }
+    .monetiz-block.open { max-height: 440px; opacity: 1; margin-top: 18px; }
+    .monetiz-toggle { display: flex; gap: 8px; margin-bottom: 4px; }
+    .monetiz-opt {
+      flex: 1; padding: 11px 14px; background: var(--bg-surface);
+      border: 1px solid rgba(46,232,176,0.2); border-radius: 2px; color: var(--text-second);
+      font-family: 'Outfit', sans-serif; font-size: 0.85rem; cursor: pointer; transition: all 0.2s;
+    }
+    .monetiz-opt:hover { border-color: rgba(46,232,176,0.5); background: var(--bg-elevated); }
+    .monetiz-opt.selected { border-color: #2EE8B0; background: rgba(46,232,176,0.08); color: #2EE8B0; }
+    .charge-fields { display: none; flex-direction: column; gap: 6px; margin-top: 10px; }
+    .charge-fields.open { display: flex; animation: fadeUp 0.32s cubic-bezier(0.16,1,0.3,1) both; }
+    .monetiz-label { font-size: 0.7rem; letter-spacing: 0.06em; color: var(--text-second); margin-top: 4px; }
     @media (max-width: 600px) {
       .navbar { padding: 0 18px; }
       .progress-wrap { padding: 12px 18px; }
@@ -174,14 +213,15 @@
       <img src="../Image/logo.png" alt="Steve Arch">
       <span class="nav-brand">Steve Arch</span>
     </a>
+    <h1 class="step-question" id="stepQuestion">Como se chama<br><em>sua solução?</em></h1>
     <a href="index.html" class="nav-back">
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M19 12H5m0 0l7 7m-7-7 7-7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
       Voltar
     </a>
   </nav>
+  </nav>
   <div class="main">
     <div class="chat-area">
-      <h1 class="step-question" id="stepQuestion">Como se chama<br><em>sua solução?</em></h1>
       <div class="chat-messages" id="chatMessages">
         <div class="msg">
           <div class="msg-av">Steve</div>
@@ -277,6 +317,101 @@ const NAME_SUGGESTIONS = {
   rh: ['TalentAI','RecrutaFlow','PeopleBot','HireTrack'],
   administrativa: ['OpsFlow','GestorAI','ProcessBot','AdminTrack']
 };
+const PROBLEM_CHIPS = {
+  marketing: [
+    "Dificuldade em medir o retorno de campanhas",
+    "Criação de conteúdo não escala",
+    "Leads chegam sem qualificação",
+    "Atendimento manual no WhatsApp",
+    "Dependência de uma única plataforma de ads"
+  ],
+  financas: [
+    "Falta de visão macro dos gastos",
+    "Conciliação manual entre contas",
+    "Categorização demora muito",
+    "Difícil entender pra onde vai o dinheiro",
+    "Vários bancos sem unificação"
+  ],
+  medicina: [
+    "Agendamento manual consome a recepção",
+    "Prontuário em papel ou planilha",
+    "Pacientes faltam sem aviso",
+    "Comunicação pós consulta inexistente",
+    "Difícil rastrear histórico clínico"
+  ],
+  direito: [
+    "Triagem de casos demora demais",
+    "Petições repetitivas tomam tempo",
+    "Clientes pedem atualizações constantes",
+    "Controle de prazos manual e arriscado",
+    "Pesquisa de jurisprudência demorada"
+  ],
+  logistica: [
+    "Rastreamento de entregas é manual",
+    "Roteirização ineficiente",
+    "Sem visibilidade do status em tempo real",
+    "Comunicação com motoristas via WhatsApp",
+    "Difícil prever atrasos"
+  ],
+  rh: [
+    "Triagem de currículos é manual",
+    "Onboarding de novos funcionários demora",
+    "Pesquisas de clima sem ação prática",
+    "Folha de ponto descentralizada",
+    "Comunicação interna fragmentada"
+  ],
+  administrativa: [
+    "Tarefas repetitivas consomem tempo",
+    "Documentos espalhados em vários lugares",
+    "Aprovações dependem de email manual",
+    "Sem visão consolidada de processos",
+    "Erros frequentes por falta de padrão"
+  ]
+};
+const SOLUTION_CHIPS = {
+  marketing: [
+    "Dashboard centralizado de métricas",
+    "Automação de campanhas com IA",
+    "Chatbot de qualificação de leads",
+    "Gerador de conteúdo personalizado"
+  ],
+  financas: [
+    "App de controle financeiro pessoal",
+    "Dashboard web com gráficos e categorias",
+    "Integração com Open Finance",
+    "Categorização automática com IA"
+  ],
+  medicina: [
+    "Sistema de agendamento online",
+    "Prontuário eletrônico simplificado",
+    "Lembretes automáticos por WhatsApp",
+    "Portal de acompanhamento do paciente"
+  ],
+  direito: [
+    "Gerador de petições com IA",
+    "Painel de prazos centralizado",
+    "Triagem automatizada de casos",
+    "Portal de atualização para clientes"
+  ],
+  logistica: [
+    "Painel de rastreamento em tempo real",
+    "Roteirizador automático",
+    "App para motoristas com status",
+    "Previsão de atraso com IA"
+  ],
+  rh: [
+    "Triagem inteligente de currículos",
+    "Plataforma de onboarding guiado",
+    "Sistema de pesquisa de clima",
+    "Hub de comunicação interna"
+  ],
+  administrativa: [
+    "Automação de tarefas repetitivas",
+    "Hub centralizado de documentos",
+    "Fluxo de aprovação digital",
+    "Dashboard de processos operacionais"
+  ]
+};
 const AREA_R={marketing:["Marketing é onde mais vejo soluções escaláveis nascendo agora.","Boa escolha. Ferramentas de IA estão transformando essa área rapidamente."],financas:["Finanças é a área que mais cresce em adoção de IA no Brasil agora.","Precisa de atenção especial em dados sensíveis e regulação."],medicina:["Saúde é uma das áreas com maior impacto real para soluções tecnológicas.","Soluções médicas precisam de cuidado extra com proteção de dados."],direito:["Jurídico está em plena transformação digital. Ótimo momento para entrar.","Área com muito processo manual ainda. Espaço enorme para automação."],logistica:["Logística é onde gargalos técnicos aparecem mais rápido com o crescimento.","Boa área. Escala exige atenção especial em infraestrutura."],rh:["RH está sendo completamente redesenhado por IA nos últimos dois anos.","Boa escolha. Empresas de todos os tamanhos precisam disso."],administrativa:["Processos administrativos são os que mais se beneficiam de automação.","Boa área para começar. Problema claro, usuário bem definido."]};
 const ZERO_BUDGET=['Sem problemas, podemos calibrar isso depois.','Entendido. Você pode ajustar o orçamento quando quiser.','Tranquilo. Essa questão pode ser alterada mais tarde.','Beleza. Definimos isso quando já tiver faturando.','Ok. Se mudar de ideia é só atualizar o orçamento depois.'];
 const INVEST_R={ate100:['Boa escolha para começar. Dá pra construir muito com esse orçamento.'],'100a500':['Com esse investimento dá pra construir algo que aguenta escala real.'],'500mais':['Ótimo. Esse investimento abre opções de infraestrutura de alta qualidade.'],depois:['Faz sentido. Começa grátis, investe quando validar.']};
@@ -288,6 +423,7 @@ const DEDIC_R={menos5h:['Entendido. Vou calibrar o plano para um ritmo realista.
 const NAME_R=['Ótimo nome. Vamos construir o diagnóstico dessa solução.','Perfeito. Agora vou analisar cada detalhe dessa solução.','Excelente. Começo a estruturar o diagnóstico agora.','Registrado. Vamos ver o que essa solução tem de potencial.'];
 
 let currentStep=1, answers={}, selectedTools=[];
+let jaCobra=null, ticketAtual=null, usuariosPagantes=null;
 function rand(a){return a[Math.floor(Math.random()*a.length)];}
 function setReady(v){document.getElementById('btnNext').classList.toggle('ready',!!v);}
 function addMsg(text,isUser=false,delay=0){
@@ -306,7 +442,11 @@ function _app(text,isUser){
 }
 function renderStep(){
   const s=STEPS[currentStep-1];
-  document.getElementById('stepQuestion').innerHTML=s.question;
+  const sq = document.getElementById('stepQuestion');
+  sq.innerHTML = s.question;
+  sq.style.animation = 'none';
+  sq.offsetHeight;
+  sq.style.animation = 'fadeUp 0.45s cubic-bezier(0.16,1,0.3,1) both';
   document.getElementById('optionsLabel').textContent=s.label;
   document.getElementById('progressFill').style.width=((currentStep-1)/TOTAL_STEPS*100)+'%';
   document.getElementById('progressCount').textContent=currentStep+' / '+TOTAL_STEPS;
@@ -342,6 +482,39 @@ function renderStep(){
       d.innerHTML=`${item.icon?`<span class="opt-icon">${item.icon}</span>`:''}<div class="opt-content"><div class="opt-label">${item.label}</div>${item.sub?`<div class="opt-sub">${item.sub}</div>`:''}</div><span class="opt-check">✓</span>`;
       c.appendChild(d);
     });
+    if(currentStep===7){
+      // Bloco de monetização: revelado quando o usuário já tem usuários
+      jaCobra=null;ticketAtual=null;usuariosPagantes=null;
+      const mb=document.createElement('div');mb.className='monetiz-block';mb.id='monetizBlock';
+      mb.innerHTML=`
+        <p class="section-label">Já cobra dos seus usuários?</p>
+        <div class="monetiz-toggle">
+          <button type="button" class="monetiz-opt" data-val="sim">Sim</button>
+          <button type="button" class="monetiz-opt" data-val="nao">Ainda não</button>
+        </div>
+        <div class="charge-fields" id="chargeFields">
+          <label class="monetiz-label">Quanto cobra por usuário? (R$)</label>
+          <input type="number" min="0" step="0.01" class="steve-input" id="ticketInput" placeholder="Ex: 49.90">
+          <label class="monetiz-label">Quantos pagantes você tem?</label>
+          <input type="number" min="0" step="1" class="steve-input" id="payingInput" placeholder="Ex: 120">
+        </div>`;
+      c.appendChild(mb);
+      mb.querySelectorAll('.monetiz-opt').forEach(b=>{
+        b.onclick=()=>{
+          mb.querySelectorAll('.monetiz-opt').forEach(x=>x.classList.remove('selected'));
+          b.classList.add('selected');
+          const cf=mb.querySelector('#chargeFields');
+          if(b.dataset.val==='sim'){jaCobra=true;cf.classList.add('open');}
+          else{
+            jaCobra=false;cf.classList.remove('open');ticketAtual=null;usuariosPagantes=null;
+            const ti=mb.querySelector('#ticketInput'),pi=mb.querySelector('#payingInput');if(ti)ti.value='';if(pi)pi.value='';
+          }
+        };
+      });
+      const ti=mb.querySelector('#ticketInput'),pi=mb.querySelector('#payingInput');
+      ti.oninput=()=>{ticketAtual=ti.value!==''?parseFloat(ti.value):null;};
+      pi.oninput=()=>{usuariosPagantes=pi.value!==''?parseInt(pi.value,10):null;};
+    }
   }
 
   if(s.type==='textarea'){
@@ -349,12 +522,43 @@ function renderStep(){
       const ins=AREA_INSIGHTS[answers.step2];
       if(ins){const b=document.createElement('div');b.className='insight-box';b.innerHTML=`<span class="insight-label">📡 ${ins.title}</span><p class="insight-text">${ins.text}</p>`;c.appendChild(b);}
     }
+    const chipSet=currentStep===3?PROBLEM_CHIPS:currentStep===4?SOLUTION_CHIPS:null;
+    const chips=chipSet&&answers.step2?chipSet[answers.step2]:null;
     const ta=document.createElement('textarea');ta.className='steve-textarea';ta.placeholder=s.placeholder||'';ta.id='taInput';
     ta.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();if(ta.value.trim().length>15)document.getElementById('btnNext').click();}});
     ta.oninput=()=>{answers[`step${currentStep}`]=ta.value.trim();setReady(ta.value.trim().length>15);};
-    c.appendChild(ta);
-    const h=document.createElement('p');h.className='input-hint';h.textContent='Enter para enviar. Shift+Enter para nova linha.';c.appendChild(h);
-    setTimeout(()=>ta.focus(),80);
+
+    if(chips&&chips.length){
+      // Modo chips: atalhos contextuais por área, com escape para texto livre
+      const chipWrap=document.createElement('div');chipWrap.className='chip-wrap';
+      chips.forEach((txt,i)=>{
+        const chip=document.createElement('span');chip.className='chip';chip.textContent=txt;chip.style.animationDelay=(i*0.04)+'s';
+        chip.onclick=()=>{
+          chipWrap.querySelectorAll('.chip').forEach(x=>x.classList.remove('selected'));
+          chip.classList.add('selected');
+          ta.disabled=false;ta.value=txt;
+          answers[`step${currentStep}`]=txt;setReady(true);
+        };
+        chipWrap.appendChild(chip);
+      });
+      c.appendChild(chipWrap);
+
+      ta.disabled=true;c.appendChild(ta);
+
+      const describe=document.createElement('span');describe.className='describe-link';describe.textContent='Descrever do meu jeito';
+      describe.onclick=()=>{
+        chipWrap.style.display='none';describe.style.display='none';
+        ta.disabled=false;ta.value='';answers[`step${currentStep}`]='';setReady(false);
+        setTimeout(()=>ta.focus(),60);
+      };
+      c.appendChild(describe);
+
+      const h=document.createElement('p');h.className='input-hint';h.textContent='Escolha uma opção acima ou descreva do seu jeito.';c.appendChild(h);
+    }else{
+      c.appendChild(ta);
+      const h=document.createElement('p');h.className='input-hint';h.textContent='Enter para enviar. Shift+Enter para nova linha.';c.appendChild(h);
+      setTimeout(()=>ta.focus(),80);
+    }
   }
 
   if(s.type==='multi-tools'){
@@ -391,6 +595,20 @@ function selectSingle(el,item){
     const sugs=document.getElementById('nameSugs');
     if(sugs&&NAME_SUGGESTIONS[item.value]){
       // já passou do step de nome, mas guarda a área para sugestões futuras
+    }
+  }
+  if(currentStep===7){
+    const mb=document.getElementById('monetizBlock');
+    if(mb){
+      if(item.value==='zero'){
+        mb.classList.remove('open');
+        jaCobra=null;ticketAtual=null;usuariosPagantes=null;
+        mb.querySelectorAll('.monetiz-opt').forEach(x=>x.classList.remove('selected'));
+        const cf=mb.querySelector('#chargeFields');if(cf)cf.classList.remove('open');
+        const ti=mb.querySelector('#ticketInput'),pi=mb.querySelector('#payingInput');if(ti)ti.value='';if(pi)pi.value='';
+      }else{
+        mb.classList.add('open');
+      }
     }
   }
 }
@@ -464,7 +682,10 @@ function submitOnboarding(){
       step6: answers.step7, // usuários
       step7: answers.step8, // dedicação
       toolOther: answers.toolOther,
-      tools: selectedTools
+      tools: selectedTools,
+      ja_cobra: jaCobra,            // boolean ou null
+      ticket_atual: ticketAtual,    // number ou null
+      usuarios_pagantes: usuariosPagantes  // number ou null
     };
     localStorage.setItem('steveOnboarding',JSON.stringify(payload));
     setTimeout(()=>{window.location.href='minhas-analises.html';},4000);

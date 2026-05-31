@@ -1,5 +1,4 @@
 /**
- * ATECH — Neural Background
  * Vibrant green, faint background detail.
  */
 (function () {

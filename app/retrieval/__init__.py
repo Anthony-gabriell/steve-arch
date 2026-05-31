@@ -1,0 +1,1 @@
+# futuramente vmos realizar RAG

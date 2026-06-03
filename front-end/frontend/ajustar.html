@@ -1,10 +1,139 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <title>Title</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Steve Arch | Ajustar respostas</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/png" href="../Image/logo2.png">
+  <script defer src="js/neural-bg.js"></script>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --bg-deep: #060809; --bg-surface: #0C1110; --bg-elevated: #121917;
+      --accent: #2EE8B0; --accent-soft: rgba(46,232,176,0.12);
+      --text-primary: #F8F9FA; --text-second: #8B9590; --text-dim: #3A4440; --text-mute: #5A6560;
+      --border-base: rgba(46,232,176,0.10); --border-hover: rgba(46,232,176,0.25);
+    }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Outfit', sans-serif; background: var(--bg-deep); color: var(--text-primary); min-height: 100vh; overflow-x: hidden; letter-spacing: -0.01em; }
+    body::before { content: ''; position: fixed; top: -20%; right: -10%; width: 70vw; height: 80vh; background: radial-gradient(ellipse at center, rgba(46,232,176,0.05) 0%, transparent 60%); pointer-events: none; z-index: 0; }
+    #neural-canvas { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+    .page-wrap { position: relative; z-index: 1; }
+
+    .navbar { position: fixed; top: 0; left: 0; right: 0; z-index: 100; height: 64px; display: flex; align-items: center; justify-content: space-between; padding: 0 40px; background: rgba(6,8,9,0.7); backdrop-filter: blur(20px); border-bottom: 1px solid var(--border-base); }
+    .nav-logo { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; letter-spacing: 0.32em; color: var(--accent); font-weight: 500; text-decoration: none; display: flex; align-items: center; gap: 10px; }
+    .nav-logo img { height: 24px; }
+    .nav-back-link { font-size: 0.66rem; letter-spacing: 0.18em; color: var(--text-mute); text-transform: uppercase; text-decoration: none; transition: color 0.2s; }
+    .nav-back-link:hover { color: var(--accent); }
+
+    .container { max-width: 760px; margin: 0 auto; padding: 100px 32px 80px; }
+    .header { margin-bottom: 32px; }
+    .header-tag { font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; letter-spacing: 0.3em; text-transform: uppercase; color: var(--accent); display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+    .header-tag::before { content: ''; width: 22px; height: 1px; background: var(--accent); }
+    .header-title { font-size: clamp(1.6rem, 3vw, 2.2rem); font-weight: 600; letter-spacing: -0.02em; margin-bottom: 8px; }
+    .header-sub { font-size: 0.92rem; color: var(--text-second); line-height: 1.5; font-weight: 300; }
+
+    .review-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 32px; }
+    .rev-item { display: flex; align-items: center; gap: 16px; padding: 16px 20px; background: var(--bg-surface); border: 1px solid var(--border-base); border-radius: 3px; transition: all 0.2s; }
+    .rev-item:hover { background: var(--bg-elevated); border-color: var(--border-hover); }
+    .rev-body { flex: 1; min-width: 0; }
+    .rev-label { font-family: 'JetBrains Mono', monospace; font-size: 0.58rem; letter-spacing: 0.22em; text-transform: uppercase; color: var(--text-mute); margin-bottom: 4px; }
+    .rev-value { font-size: 0.92rem; color: var(--text-primary); font-weight: 400; line-height: 1.45; word-break: break-word; }
+    .rev-edit { flex-shrink: 0; padding: 7px 14px; background: transparent; border: 1px solid rgba(46,232,176,0.3); border-radius: 2px; color: var(--accent); font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; font-weight: 500; letter-spacing: 0.18em; text-transform: uppercase; cursor: pointer; transition: all 0.2s; }
+    .rev-edit:hover { background: rgba(46,232,176,0.08); border-color: var(--accent); }
+
+    .actions { display: flex; gap: 12px; justify-content: flex-end; flex-wrap: wrap; padding-top: 16px; border-top: 1px solid var(--border-base); }
+    .btn-action { padding: 13px 24px; border-radius: 3px; font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; font-weight: 500; letter-spacing: 0.18em; text-transform: uppercase; cursor: pointer; transition: all 0.2s; border: none; text-decoration: none; display: inline-flex; align-items: center; }
+    .btn-action.outline { background: transparent; border: 1px solid rgba(46,232,176,0.3); color: var(--accent); }
+    .btn-action.outline:hover { background: rgba(46,232,176,0.06); }
+    .btn-action.primary { background: linear-gradient(135deg, #2EE8B0, #00D1FF); color: var(--bg-deep); font-weight: 700; }
+    .btn-action.primary:hover { box-shadow: 0 0 20px rgba(46,232,176,0.4); transform: translateY(-1px); }
+
+    .info-box { background: rgba(46,232,176,0.04); border: 1px solid rgba(46,232,176,0.15); border-left: 2px solid var(--accent); padding: 14px 18px; border-radius: 3px; margin-bottom: 24px; }
+    .info-text { font-size: 0.82rem; color: var(--text-second); line-height: 1.55; font-weight: 300; }
+    .info-text strong { color: var(--text-primary); font-weight: 500; }
+
+    .edit-modal { display: none; position: fixed; inset: 0; z-index: 200; background: rgba(6,8,9,0.85); backdrop-filter: blur(8px); align-items: center; justify-content: center; padding: 24px; }
+    .edit-modal.open { display: flex; animation: fadeIn 0.2s ease; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    .edit-content { width: 100%; max-width: 560px; max-height: 85vh; background: var(--bg-surface); border: 1px solid var(--border-hover); border-radius: 4px; display: flex; flex-direction: column; overflow: hidden; }
+    .edit-header { padding: 20px 24px; border-bottom: 1px solid var(--border-base); display: flex; justify-content: space-between; align-items: center; }
+    .edit-title { font-size: 0.95rem; font-weight: 600; letter-spacing: 0.02em; }
+    .edit-close { background: none; border: none; color: var(--text-second); font-size: 1.4rem; cursor: pointer; transition: color 0.2s; }
+    .edit-close:hover { color: var(--accent); }
+    .edit-body { padding: 20px 24px; overflow-y: auto; flex: 1; }
+    .edit-footer { padding: 16px 24px; border-top: 1px solid var(--border-base); display: flex; gap: 10px; justify-content: flex-end; }
+
+    .aj-input { width: 100%; background: var(--bg-elevated); border: 1px solid var(--border-base); border-radius: 2px; padding: 12px 14px; color: var(--text-primary); font-family: 'Outfit', sans-serif; font-size: 0.9rem; outline: none; transition: border-color 0.2s; }
+    .aj-input:focus { border-color: var(--accent); }
+    .aj-textarea { width: 100%; min-height: 120px; background: var(--bg-elevated); border: 1px solid var(--border-base); border-radius: 2px; padding: 12px 14px; color: var(--text-primary); font-family: 'Outfit', sans-serif; font-size: 0.9rem; line-height: 1.5; outline: none; resize: vertical; transition: border-color 0.2s; }
+    .aj-textarea:focus { border-color: var(--accent); }
+    .aj-opt { display: flex; align-items: center; gap: 12px; padding: 12px 14px; background: var(--bg-elevated); border: 1px solid var(--border-base); border-radius: 2px; cursor: pointer; transition: all 0.18s; margin-bottom: 6px; }
+    .aj-opt:hover { border-color: var(--border-hover); background: rgba(46,232,176,0.04); }
+    .aj-opt.selected { border-color: var(--accent); background: rgba(46,232,176,0.08); }
+    .aj-icon { font-size: 1rem; width: 26px; text-align: center; flex-shrink: 0; }
+    .aj-opt-label { font-size: 0.88rem; color: var(--text-primary); }
+    .aj-opt-sub { font-size: 0.72rem; color: var(--text-second); margin-top: 2px; }
+
+    @media (max-width: 600px) {
+      .navbar { padding: 0 20px; }
+      .container { padding: 90px 18px 60px; }
+      .rev-item { padding: 14px; flex-wrap: wrap; }
+      .rev-edit { width: 100%; margin-top: 6px; }
+      .actions { flex-direction: column-reverse; }
+      .btn-action { width: 100%; justify-content: center; }
+    }
+  </style>
 </head>
 <body>
+<canvas id="neural-canvas" aria-hidden="true"></canvas>
+<div class="page-wrap">
+  <nav class="navbar">
+    <a href="index.html" class="nav-logo">
+      <img src="../Image/logo.png" alt="Steve Arch">
+      <span>STEVE ARCH</span>
+    </a>
+    <a href="minhas-analises.html" class="nav-back-link">← Voltar ao diagnóstico</a>
+  </nav>
 
+  <div class="container">
+    <div class="header">
+      <div class="header-tag">Revisão de respostas</div>
+      <h1 class="header-title">Ajuste o que precisar</h1>
+      <p class="header-sub">Edite qualquer resposta sem refazer todo o onboarding. Quando terminar, clique em "Gerar nova análise".</p>
+    </div>
+
+    <div class="info-box">
+      <p class="info-text"><strong>Atenção:</strong> gerar nova análise consome 1 das suas 3 análises diárias e substitui o diagnóstico atual.</p>
+    </div>
+
+    <div class="review-list" id="reviewList"></div>
+
+    <div class="actions">
+      <a href="minhas-analises.html" class="btn-action outline">Cancelar</a>
+      <button class="btn-action primary" onclick="gerarNovaAnalise()">Gerar nova análise</button>
+    </div>
+  </div>
+
+  <div class="edit-modal" id="editModal">
+    <div class="edit-content">
+      <div class="edit-header">
+        <span class="edit-title" id="editTitle">Editar</span>
+        <button class="edit-close" onclick="closeEditor()">&times;</button>
+      </div>
+      <div class="edit-body" id="editBody"></div>
+      <div class="edit-footer">
+        <button class="btn-action outline" onclick="closeEditor()">Cancelar</button>
+        <button class="btn-action primary" onclick="saveEditor()">Salvar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="js/shared.js"></script>
+<script src="js/ajustar.js"></script>
 </body>
 </html>

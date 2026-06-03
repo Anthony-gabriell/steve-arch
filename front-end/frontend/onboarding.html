@@ -21,59 +21,29 @@
     body { font-family: 'Outfit', sans-serif; background: var(--bg-deep); color: var(--text-primary); min-height: 100vh; overflow-x: hidden; }
     #neural-canvas { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
     .page-wrap { position: relative; z-index: 1; min-height: 100vh; }
-    .navbar {
-      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 0 48px; height: 68px;
-      background: rgba(6,8,9,0.88); backdrop-filter: blur(20px);
-      border-bottom: 1px solid rgba(46,232,176,0.07);
-    }
+    .navbar { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; padding: 0 48px; height: 68px; background: rgba(6,8,9,0.88); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(46,232,176,0.07); }
     .nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
     .nav-logo img { height: 30px; filter: drop-shadow(0 0 5px rgba(46,232,176,0.3)); }
     .nav-brand { font-size: 0.8rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--accent); }
     .nav-back { font-size: 0.72rem; color: var(--text-second); text-decoration: none; letter-spacing: 0.1em; text-transform: uppercase; display: flex; align-items: center; gap: 6px; transition: color 0.2s; }
     .nav-back:hover { color: var(--accent); }
-    .progress-wrap {
-      position: fixed; bottom: 0; left: 0; right: 0; z-index: 90;
-      background: rgba(6,8,9,0.92); border-top: 1px solid rgba(46,232,176,0.07);
-      padding: 14px 48px; display: flex; align-items: center; gap: 20px;
-    }
+    .progress-wrap { position: fixed; bottom: 0; left: 0; right: 0; z-index: 90; background: rgba(6,8,9,0.92); border-top: 1px solid rgba(46,232,176,0.07); padding: 14px 48px; display: flex; align-items: center; gap: 20px; }
     .progress-track { flex: 1; height: 2px; background: rgba(46,232,176,0.08); border-radius: 1px; }
     .progress-fill { height: 100%; background: var(--accent); border-radius: 1px; transition: width 0.6s cubic-bezier(0.16,1,0.3,1); box-shadow: 0 0 10px rgba(46,232,176,0.4); }
     .progress-count { font-size: 0.68rem; letter-spacing: 0.12em; color: var(--accent); font-weight: 600; text-transform: uppercase; flex-shrink: 0; }
-    .btn-next {
-      padding: 9px 26px; background: linear-gradient(135deg, #2EE8B0, #00D1FF);
-      color: #060809; font-family: 'Outfit', sans-serif; font-size: 0.72rem; font-weight: 700;
-      letter-spacing: 0.1em; text-transform: uppercase; border: none; cursor: pointer;
-      border-radius: 2px; transition: all 0.2s; opacity: 0.35; pointer-events: none; flex-shrink: 0;
-    }
+    .btn-next { padding: 9px 26px; background: linear-gradient(135deg, #2EE8B0, #00D1FF); color: #060809; font-family: 'Outfit', sans-serif; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; border: none; cursor: pointer; border-radius: 2px; transition: all 0.2s; opacity: 0.35; pointer-events: none; flex-shrink: 0; }
     .btn-next.ready { opacity: 1; pointer-events: all; box-shadow: var(--glow-sm); }
     .btn-next.ready:hover { box-shadow: var(--glow); transform: translateY(-1px); }
     .main { padding-top: 80px; padding-bottom: 80px; min-height: 100vh; display: flex; flex-direction: column; }
     .chat-area { max-width: 680px; margin: 0 auto; width: 100%; padding: 44px 24px 20px; display: flex; flex-direction: column; }
-    .step-question {
-      font-size: clamp(0.85rem, 1.2vw, 1rem);
-      font-weight: 600;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      line-height: 1.2;
-      margin: 0;
-      color: var(--text-primary);
-      flex: 1;
-      text-align: center;
-    }
+    .step-question { font-size: clamp(0.85rem, 1.2vw, 1rem); font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; line-height: 1.2; margin: 0; color: var(--text-primary); flex: 1; text-align: center; }
     .step-question em { color: var(--accent); font-style: normal; }
     @keyframes fadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
     .chat-messages { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
     .msg { display: flex; gap: 10px; align-items: flex-start; animation: msgIn 0.32s cubic-bezier(0.16,1,0.3,1) both; }
     @keyframes msgIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
     .msg.user { flex-direction: row-reverse; }
-    .msg-av {
-      width: 46px; height: 28px; flex-shrink: 0; border: var(--border-accent); border-radius: 2px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 0.52rem; font-weight: 700; color: var(--accent); letter-spacing: 0.04em;
-      background: rgba(46,232,176,0.05); text-transform: uppercase; white-space: nowrap; padding: 0 6px;
-    }
+    .msg-av { width: 46px; height: 28px; flex-shrink: 0; border: var(--border-accent); border-radius: 2px; display: flex; align-items: center; justify-content: center; font-size: 0.52rem; font-weight: 700; color: var(--accent); letter-spacing: 0.04em; background: rgba(46,232,176,0.05); text-transform: uppercase; white-space: nowrap; padding: 0 6px; }
     .msg.user .msg-av { background: rgba(46,232,176,0.08); color: var(--text-primary); }
     .msg-bubble { background: var(--bg-surface); border: var(--border-base); padding: 10px 14px; border-radius: 2px; font-size: 0.85rem; color: var(--text-second); line-height: 1.6; max-width: 540px; }
     .msg.user .msg-bubble { background: rgba(46,232,176,0.05); border-color: rgba(46,232,176,0.18); color: var(--text-primary); }
@@ -86,12 +56,7 @@
     @keyframes tb { 0%,60%,100%{transform:translateY(0);opacity:0.4} 30%{transform:translateY(-5px);opacity:1} }
     .options-area { max-width: 680px; margin: 0 auto; width: 100%; padding: 0 24px 24px; display: flex; flex-direction: column; gap: 8px; }
     .options-label { font-size: 0.6rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--text-second); margin-bottom: 2px; }
-    .opt {
-      background: var(--bg-surface); border: var(--border-base); padding: 13px 16px;
-      cursor: pointer; transition: all 0.18s; display: flex; align-items: center; gap: 12px;
-      position: relative; overflow: hidden; border-radius: 2px;
-      animation: fadeUp 0.38s cubic-bezier(0.16,1,0.3,1) both;
-    }
+    .opt { background: var(--bg-surface); border: var(--border-base); padding: 13px 16px; cursor: pointer; transition: all 0.18s; display: flex; align-items: center; gap: 12px; position: relative; overflow: hidden; border-radius: 2px; animation: fadeUp 0.38s cubic-bezier(0.16,1,0.3,1) both; }
     .opt::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 2px; background: var(--accent); transform: scaleY(0); transform-origin: bottom; transition: transform 0.18s; }
     .opt:hover { background: var(--bg-elevated); border-color: rgba(46,232,176,0.22); }
     .opt:hover::before { transform: scaleY(1); }
@@ -103,38 +68,18 @@
     .opt-sub { font-size: 0.71rem; color: var(--text-second); margin-top: 1px; }
     .opt-check { margin-left: auto; color: var(--accent); font-size: 0.76rem; opacity: 0; transition: opacity 0.18s; flex-shrink: 0; }
     .opt.selected .opt-check { opacity: 1; }
-    .opt-expand-btn {
-      font-size: 0.6rem; color: var(--accent); letter-spacing: 0.08em; text-transform: uppercase;
-      margin-top: 5px; cursor: pointer; background: none; border: none; padding: 0;
-      font-family: 'Outfit', sans-serif; display: inline-flex; align-items: center; gap: 4px; transition: opacity 0.18s;
-    }
+    .opt-expand-btn { font-size: 0.6rem; color: var(--accent); letter-spacing: 0.08em; text-transform: uppercase; margin-top: 5px; cursor: pointer; background: none; border: none; padding: 0; font-family: 'Outfit', sans-serif; display: inline-flex; align-items: center; gap: 4px; transition: opacity 0.18s; }
     .opt-expand-btn:hover { opacity: 0.7; }
-    .opt-detail {
-      display: none; margin-top: 8px; padding: 10px 12px;
-      background: rgba(46,232,176,0.03); border: var(--border-base);
-      border-radius: 2px; font-size: 0.77rem; color: var(--text-second); line-height: 1.65;
-    }
+    .opt-detail { display: none; margin-top: 8px; padding: 10px 12px; background: rgba(46,232,176,0.03); border: var(--border-base); border-radius: 2px; font-size: 0.77rem; color: var(--text-second); line-height: 1.65; }
     .opt-detail.open { display: block; animation: fadeUp 0.28s ease both; }
-    .steve-textarea {
-      width: 100%; min-height: 128px; background: var(--bg-surface); border: var(--border-base);
-      border-radius: 2px; padding: 13px 15px; color: var(--text-primary);
-      font-family: 'Outfit', sans-serif; font-size: 0.87rem; font-weight: 300;
-      line-height: 1.6; resize: none; outline: none; transition: border-color 0.2s, box-shadow 0.2s;
-    }
+    .steve-textarea { width: 100%; min-height: 128px; background: var(--bg-surface); border: var(--border-base); border-radius: 2px; padding: 13px 15px; color: var(--text-primary); font-family: 'Outfit', sans-serif; font-size: 0.87rem; font-weight: 300; line-height: 1.6; resize: none; outline: none; transition: border-color 0.2s, box-shadow 0.2s; }
     .steve-textarea::placeholder { color: var(--text-dim); }
     .steve-textarea:focus { border-color: rgba(46,232,232,0.3); box-shadow: var(--glow-sm); }
-    .steve-input {
-      width: 100%; background: var(--bg-surface); border: var(--border-base); border-radius: 2px;
-      padding: 11px 15px; color: var(--text-primary); font-family: 'Outfit', sans-serif;
-      font-size: 0.87rem; font-weight: 300; outline: none; transition: border-color 0.2s, box-shadow 0.2s;
-    }
+    .steve-input { width: 100%; background: var(--bg-surface); border: var(--border-base); border-radius: 2px; padding: 11px 15px; color: var(--text-primary); font-family: 'Outfit', sans-serif; font-size: 0.87rem; font-weight: 300; outline: none; transition: border-color 0.2s, box-shadow 0.2s; }
     .steve-input::placeholder { color: var(--text-dim); }
     .steve-input:focus { border-color: rgba(46,232,176,0.3); box-shadow: var(--glow-sm); }
     .input-hint { font-size: 0.67rem; color: var(--text-second); margin-top: 5px; letter-spacing: 0.04em; }
-    .insight-box {
-      background: rgba(46,232,176,0.03); border: var(--border-base);
-      border-left: 2px solid var(--accent); padding: 14px 16px; border-radius: 2px; margin-bottom: 14px;
-    }
+    .insight-box { background: rgba(46,232,176,0.03); border: var(--border-base); border-left: 2px solid var(--accent); padding: 14px 16px; border-radius: 2px; margin-bottom: 14px; }
     .insight-label { font-size: 0.58rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent); margin-bottom: 5px; display: block; }
     .insight-text { font-size: 0.79rem; color: var(--text-second); line-height: 1.65; }
     .section-label { font-size: 0.6rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-second); margin: 14px 0 4px; }
@@ -145,54 +90,25 @@
     .loading-title { font-size: 0.7rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent); animation: pulse 2s ease infinite; }
     @keyframes pulse { 0%,100%{opacity:0.5} 50%{opacity:1} }
     .loading-sub { font-size: 0.71rem; color: var(--text-second); text-align: center; max-width: 280px; line-height: 1.6; }
-    /* NAME STEP SPECIAL */
     .name-step { display: flex; flex-direction: column; gap: 12px; }
-    .name-input-big {
-      width: 100%; background: transparent; border: none;
-      border-bottom: 2px solid rgba(46,232,176,0.3);
-      padding: 12px 4px; color: var(--text-primary);
-      font-family: 'Outfit', sans-serif; font-size: clamp(1.4rem, 3vw, 2rem);
-      font-weight: 300; letter-spacing: 0.04em; outline: none;
-      transition: border-color 0.2s;
-    }
+    .name-input-big { width: 100%; background: transparent; border: none; border-bottom: 2px solid rgba(46,232,176,0.3); padding: 12px 4px; color: var(--text-primary); font-family: 'Outfit', sans-serif; font-size: clamp(1.4rem, 3vw, 2rem); font-weight: 300; letter-spacing: 0.04em; outline: none; transition: border-color 0.2s; }
     .name-input-big::placeholder { color: var(--text-dim); font-size: clamp(1rem, 2vw, 1.4rem); }
     .name-input-big:focus { border-bottom-color: var(--accent); }
     .name-suggest-label { font-size: 0.6rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-second); margin-top: 8px; }
     .name-suggestions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
-    .name-sug {
-      padding: 6px 14px; border: var(--border-base); border-radius: 2px;
-      font-size: 0.78rem; color: var(--text-second); cursor: pointer;
-      transition: all 0.18s; background: var(--bg-surface);
-    }
+    .name-sug { padding: 6px 14px; border: var(--border-base); border-radius: 2px; font-size: 0.78rem; color: var(--text-second); cursor: pointer; transition: all 0.18s; background: var(--bg-surface); }
     .name-sug:hover { border-color: rgba(46,232,176,0.3); color: var(--text-primary); background: var(--bg-elevated); }
-    /* CONTEXTUAL CHIPS */
     .chip-wrap { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
-    .chip {
-      padding: 10px 14px; border: 1px solid rgba(46,232,176,0.2); border-radius: 2px;
-      background: var(--bg-surface); font-size: 0.85rem; color: var(--text-primary);
-      cursor: pointer; transition: all 0.2s; font-family: 'Outfit', sans-serif;
-      animation: fadeUp 0.32s cubic-bezier(0.16,1,0.3,1) both;
-    }
+    .chip { padding: 10px 14px; border: 1px solid rgba(46,232,176,0.2); border-radius: 2px; background: var(--bg-surface); font-size: 0.85rem; color: var(--text-primary); cursor: pointer; transition: all 0.2s; font-family: 'Outfit', sans-serif; animation: fadeUp 0.32s cubic-bezier(0.16,1,0.3,1) both; }
     .chip:hover { border-color: rgba(46,232,176,0.5); background: var(--bg-elevated); }
     .chip.selected { border-color: #2EE8B0; background: rgba(46,232,176,0.08); color: #2EE8B0; }
-    .describe-link {
-      font-size: 0.78rem; color: var(--text-second); text-decoration: underline;
-      cursor: pointer; margin-top: 8px; display: inline-block; transition: color 0.2s;
-    }
+    .describe-link { font-size: 0.78rem; color: var(--text-second); text-decoration: underline; cursor: pointer; margin-top: 8px; display: inline-block; transition: color 0.2s; }
     .describe-link:hover { color: #2EE8B0; }
     .steve-textarea:disabled { opacity: 0.5; cursor: not-allowed; }
-    /* MONETIZATION SUB-BLOCK */
-    .monetiz-block {
-      max-height: 0; opacity: 0; overflow: hidden; margin-top: 0;
-      transition: max-height 0.45s cubic-bezier(0.16,1,0.3,1), opacity 0.35s ease, margin-top 0.35s ease;
-    }
+    .monetiz-block { max-height: 0; opacity: 0; overflow: hidden; margin-top: 0; transition: max-height 0.45s cubic-bezier(0.16,1,0.3,1), opacity 0.35s ease, margin-top 0.35s ease; }
     .monetiz-block.open { max-height: 440px; opacity: 1; margin-top: 18px; }
     .monetiz-toggle { display: flex; gap: 8px; margin-bottom: 4px; }
-    .monetiz-opt {
-      flex: 1; padding: 11px 14px; background: var(--bg-surface);
-      border: 1px solid rgba(46,232,176,0.2); border-radius: 2px; color: var(--text-second);
-      font-family: 'Outfit', sans-serif; font-size: 0.85rem; cursor: pointer; transition: all 0.2s;
-    }
+    .monetiz-opt { flex: 1; padding: 11px 14px; background: var(--bg-surface); border: 1px solid rgba(46,232,176,0.2); border-radius: 2px; color: var(--text-second); font-family: 'Outfit', sans-serif; font-size: 0.85rem; cursor: pointer; transition: all 0.2s; }
     .monetiz-opt:hover { border-color: rgba(46,232,176,0.5); background: var(--bg-elevated); }
     .monetiz-opt.selected { border-color: #2EE8B0; background: rgba(46,232,176,0.08); color: #2EE8B0; }
     .charge-fields { display: none; flex-direction: column; gap: 6px; margin-top: 10px; }
@@ -218,7 +134,6 @@
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M19 12H5m0 0l7 7m-7-7 7-7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
       Voltar
     </a>
-  </nav>
   </nav>
   <div class="main">
     <div class="chat-area">
@@ -249,449 +164,7 @@
     <p class="loading-sub">Analisando contexto, identificando gargalos e projetando o caminho de escala.</p>
   </div>
 </div>
-<script>
-const TOTAL_STEPS = 8;
-const STEPS=[
-  {id:1,question:'Como se chama<br><em>sua solução?</em>',label:'Digite o nome da sua solução',type:'name'},
-  {id:2,question:'Qual área a sua<br><em>solução atende?</em>',label:'Selecione uma área',type:'single'},
-  {id:3,question:'Qual problema você<br><em>quer resolver?</em>',label:'Descreva em suas palavras',type:'textarea',placeholder:'Ex: Advogados perdem horas gerando contratos manualmente. Quero automatizar esse processo...'},
-  {id:4,question:'Qual solução você<br><em>já pensou?</em>',label:'Descreva sua ideia. Se ainda for um esboço, tudo bem. Eu te ajudo a refinar.',type:'textarea',placeholder:'Ex: Um sistema que gera contratos automaticamente a partir de um formulário preenchido pelo cliente...'},
-  {id:5,question:'Quais ferramentas<br><em>você conhece?</em>',label:'Selecione as ferramentas que você conhece',type:'multi-tools'},
-  {id:6,question:'O quanto você QUER<br><em>investir por mês?</em>',label:'Selecione o valor que pretende investir inicialmente na sua solução',type:'single'},
-  {id:7,question:'Quantos usuários<br><em>você tem hoje?</em>',label:'Selecione sua situação atual',type:'single'},
-  {id:8,question:'Quanto tempo você<br><em>dedica ao projeto?</em>',label:'Selecione sua disponibilidade semanal',type:'single',nextBtn:'Gerar Diagnóstico'}
-];
-const AREAS=[
-  {value:'marketing',icon:'📈',label:'Marketing',sub:'Automação, growth, campanhas'},
-  {value:'financas',icon:'💹',label:'Finanças',sub:'Fintech, dashboards, controles'},
-  {value:'medicina',icon:'🏥',label:'Medicina e Saúde',sub:'Clínicas, telemedicina, gestão'},
-  {value:'direito',icon:'⚖️',label:'Direito',sub:'Contratos, compliance, automação jurídica'},
-  {value:'logistica',icon:'🚛',label:'Logística',sub:'Rastreamento, rotas, entregas'},
-  {value:'rh',icon:'👥',label:'RH',sub:'Recrutamento, onboarding, gestão'},
-  {value:'administrativa',icon:'🏢',label:'Administrativa',sub:'Processos internos, operações'}
-];
-const TOOLS=[
-  {value:'lovable',icon:'🛠️',label:'Lovable',sub:'Geração de apps com IA',detail:'Lovable é uma das ferramentas mais eficientes para começar rápido. Ideal para MVPs e protótipos. O gargalo aparece quando o volume de usuários cresce e o banco de dados precisa escalar.'},
-  {value:'n8n',icon:'🔗',label:'n8n',sub:'Automação de fluxos',detail:'n8n é referência em automação. Código aberto e muito flexível. Escala bem quando hospedado corretamente. Cuidado com hospedagem para alta demanda simultânea.'},
-  {value:'supabase',icon:'🗄️',label:'Supabase',sub:'Banco de dados e auth',detail:'Supabase é uma das melhores escolhas para banco de dados escalável agora. Resolve banco, autenticação e armazenamento em uma plataforma.'},
-  {value:'bubble',icon:'💬',label:'Bubble',sub:'No-code web apps',detail:'Bubble permite construir aplicações web complexas sem código. Ótimo para validação. Performance pode ser um gargalo em escala alta sem otimização adequada.'},
-  {value:'cursor',icon:'⌨️',label:'Cursor / Replit',sub:'Desenvolvimento com IA',detail:'Ferramentas que aceleram o desenvolvimento com IA. Cursor para devs que já codificam, Replit para quem quer ambiente completo na nuvem.'},
-  {value:'make',icon:'⚡',label:'Make / Zapier',sub:'Integração entre sistemas',detail:'Essenciais para conectar ferramentas sem código. Make é mais flexível e barato. Zapier é mais simples e tem mais integrações nativas.'},
-  {value:'chatgpt',icon:'🤖',label:'ChatGPT / Claude',sub:'Assistentes de IA',detail:'Ferramentas generalistas de IA. Excelentes para geração de conteúdo, código e análise. Não substituem arquitetura técnica sólida mas aceleram muito o desenvolvimento.'}
-];
-const INVESTMENTS=[
-  {value:'zero',label:'R$ 0',sub:'Somente ferramentas gratuitas'},
-  {value:'ate100',label:'Até R$ 100/mês',sub:'Planos básicos de ferramentas'},
-  {value:'100a500',label:'R$ 100 a 500/mês',sub:'Infraestrutura em crescimento'},
-  {value:'500mais',label:'R$ 500+/mês',sub:'Escala real de infraestrutura'},
-  {value:'depois',label:'Definir depois do faturamento',sub:'Calibrar quando já tiver receita'}
-];
-const USERS=[
-  {value:'zero',icon:'🌱',label:'Ainda não lancei',sub:'Estou construindo agora'},
-  {value:'1_50',icon:'👤',label:'1 a 50 usuários',sub:'Primeiros usuários validando'},
-  {value:'50_500',icon:'👥',label:'50 a 500 usuários',sub:'Crescendo e precisando escalar'},
-  {value:'500_5000',icon:'🚀',label:'500 a 5.000 usuários',sub:'Escala exigindo arquitetura sólida'},
-  {value:'5000mais',icon:'🌐',label:'5.000+ usuários',sub:'Alta escala com gargalos reais'}
-];
-const DEDICATION=[
-  {value:'menos5h',icon:'⏱️',label:'Menos de 5h por semana',sub:'Projeto paralelo ao trabalho'},
-  {value:'5_20h',icon:'⏰',label:'5 a 20h por semana',sub:'Dedicação consistente'},
-  {value:'20_40h',icon:'💪',label:'20 a 40h por semana',sub:'Foco quase integral'},
-  {value:'fulltime',icon:'🔥',label:'Tempo integral',sub:'100% dedicado ao projeto'}
-];
-const AREA_INSIGHTS={
-  marketing:{title:'Sobre Marketing Digital',text:'O marketing digital é a área que mais absorve automação de IA agora. Ferramentas como n8n conectam CRMs, WhatsApp e plataformas de anúncio em fluxos automáticos.'},
-  financas:{title:'Sobre Soluções Financeiras',text:'Fintech é um dos mercados mais aquecidos no Brasil. Dashboards financeiros com dados em tempo real, automação de conciliação e análise de crédito têm muito espaço.'},
-  medicina:{title:'Sobre Healthtech',text:'Soluções para clínicas e telemedicina crescem 30% ao ano no Brasil. Agendamento automatizado, prontuário eletrônico e triagem inteligente são as dores mais comuns.'},
-  direito:{title:'Sobre Legaltech',text:'O setor jurídico carece de automação. Geração de contratos, análise de documentos e processos ainda dependem de trabalho manual intenso.'},
-  logistica:{title:'Sobre Logtech',text:'Rastreamento em tempo real, otimização de rotas e gestão de frotas são as maiores demandas. Soluções de logística escalam rápido e exigem infraestrutura robusta desde cedo.'},
-  rh:{title:'Sobre HRtech',text:'Triagem de candidatos, processo de entrada de novos funcionários e análise de desempenho estão sendo transformados por IA.'},
-  administrativa:{title:'Sobre Automação Administrativa',text:'Processos administrativos têm alta repetição e baixo valor agregado, o que os torna ideais para automação.'}
-};
-const NAME_SUGGESTIONS = {
-  marketing: ['CampanhaAI','LeadFlow','ContentBot','GrowthMind'],
-  financas: ['FinTrack','ContaAI','FluxoFin','MoneyFlow'],
-  medicina: ['ClinicaAI','SaudeFlow','MediTrack','ClinicBot'],
-  direito: ['LexAI','ContratoFlow','JurisBot','LegalTrack'],
-  logistica: ['LogiTrack','EntregaAI','FreteFlow','RouteBot'],
-  rh: ['TalentAI','RecrutaFlow','PeopleBot','HireTrack'],
-  administrativa: ['OpsFlow','GestorAI','ProcessBot','AdminTrack']
-};
-const PROBLEM_CHIPS = {
-  marketing: [
-    "Dificuldade em medir o retorno de campanhas",
-    "Criação de conteúdo não escala",
-    "Leads chegam sem qualificação",
-    "Atendimento manual no WhatsApp",
-    "Dependência de uma única plataforma de ads"
-  ],
-  financas: [
-    "Falta de visão macro dos gastos",
-    "Conciliação manual entre contas",
-    "Categorização demora muito",
-    "Difícil entender pra onde vai o dinheiro",
-    "Vários bancos sem unificação"
-  ],
-  medicina: [
-    "Agendamento manual consome a recepção",
-    "Prontuário em papel ou planilha",
-    "Pacientes faltam sem aviso",
-    "Comunicação pós consulta inexistente",
-    "Difícil rastrear histórico clínico"
-  ],
-  direito: [
-    "Triagem de casos demora demais",
-    "Petições repetitivas tomam tempo",
-    "Clientes pedem atualizações constantes",
-    "Controle de prazos manual e arriscado",
-    "Pesquisa de jurisprudência demorada"
-  ],
-  logistica: [
-    "Rastreamento de entregas é manual",
-    "Roteirização ineficiente",
-    "Sem visibilidade do status em tempo real",
-    "Comunicação com motoristas via WhatsApp",
-    "Difícil prever atrasos"
-  ],
-  rh: [
-    "Triagem de currículos é manual",
-    "Onboarding de novos funcionários demora",
-    "Pesquisas de clima sem ação prática",
-    "Folha de ponto descentralizada",
-    "Comunicação interna fragmentada"
-  ],
-  administrativa: [
-    "Tarefas repetitivas consomem tempo",
-    "Documentos espalhados em vários lugares",
-    "Aprovações dependem de email manual",
-    "Sem visão consolidada de processos",
-    "Erros frequentes por falta de padrão"
-  ]
-};
-const SOLUTION_CHIPS = {
-  marketing: [
-    "Dashboard centralizado de métricas",
-    "Automação de campanhas com IA",
-    "Chatbot de qualificação de leads",
-    "Gerador de conteúdo personalizado"
-  ],
-  financas: [
-    "App de controle financeiro pessoal",
-    "Dashboard web com gráficos e categorias",
-    "Integração com Open Finance",
-    "Categorização automática com IA"
-  ],
-  medicina: [
-    "Sistema de agendamento online",
-    "Prontuário eletrônico simplificado",
-    "Lembretes automáticos por WhatsApp",
-    "Portal de acompanhamento do paciente"
-  ],
-  direito: [
-    "Gerador de petições com IA",
-    "Painel de prazos centralizado",
-    "Triagem automatizada de casos",
-    "Portal de atualização para clientes"
-  ],
-  logistica: [
-    "Painel de rastreamento em tempo real",
-    "Roteirizador automático",
-    "App para motoristas com status",
-    "Previsão de atraso com IA"
-  ],
-  rh: [
-    "Triagem inteligente de currículos",
-    "Plataforma de onboarding guiado",
-    "Sistema de pesquisa de clima",
-    "Hub de comunicação interna"
-  ],
-  administrativa: [
-    "Automação de tarefas repetitivas",
-    "Hub centralizado de documentos",
-    "Fluxo de aprovação digital",
-    "Dashboard de processos operacionais"
-  ]
-};
-const AREA_R={marketing:["Marketing é onde mais vejo soluções escaláveis nascendo agora.","Boa escolha. Ferramentas de IA estão transformando essa área rapidamente."],financas:["Finanças é a área que mais cresce em adoção de IA no Brasil agora.","Precisa de atenção especial em dados sensíveis e regulação."],medicina:["Saúde é uma das áreas com maior impacto real para soluções tecnológicas.","Soluções médicas precisam de cuidado extra com proteção de dados."],direito:["Jurídico está em plena transformação digital. Ótimo momento para entrar.","Área com muito processo manual ainda. Espaço enorme para automação."],logistica:["Logística é onde gargalos técnicos aparecem mais rápido com o crescimento.","Boa área. Escala exige atenção especial em infraestrutura."],rh:["RH está sendo completamente redesenhado por IA nos últimos dois anos.","Boa escolha. Empresas de todos os tamanhos precisam disso."],administrativa:["Processos administrativos são os que mais se beneficiam de automação.","Boa área para começar. Problema claro, usuário bem definido."]};
-const ZERO_BUDGET=['Sem problemas, podemos calibrar isso depois.','Entendido. Você pode ajustar o orçamento quando quiser.','Tranquilo. Essa questão pode ser alterada mais tarde.','Beleza. Definimos isso quando já tiver faturando.','Ok. Se mudar de ideia é só atualizar o orçamento depois.'];
-const INVEST_R={ate100:['Boa escolha para começar. Dá pra construir muito com esse orçamento.'],'100a500':['Com esse investimento dá pra construir algo que aguenta escala real.'],'500mais':['Ótimo. Esse investimento abre opções de infraestrutura de alta qualidade.'],depois:['Faz sentido. Começa grátis, investe quando validar.']};
-const USER_R={zero:['Ótimo. Vamos começar do zero e escalar essa solução.'],'1_50':['Fase ideal para solidificar a base antes da escala.'],'50_500':['Crescendo. Aqui os gargalos começam a aparecer de verdade.'],'500_5000':['Fase crítica. Vamos mapear o que precisa ser reforçado.'],'5000mais':['Alta escala. Aqui os gargalos são caros e urgentes.']};
-const PROBLEM_R=['Entendido. Contexto claro ajuda a identificar os gargalos certos.','Boa descrição. Vou usar isso para calibrar o diagnóstico.','Anotado. Esse contexto é fundamental para a análise.'];
-const SOLUTION_R=['Interessante. Vou considerar essa abordagem na análise de viabilidade.','Boa visão. Agora vou mapear os pontos críticos dessa solução.','Entendido. Isso vai orientar as recomendações de ferramentas.'];
-const TOOLS_R=['Ferramentas registradas. Vou calibrar as recomendações com base no que você já conhece.','Anotado. Essas ferramentas vão guiar as sugestões.'];
-const DEDIC_R={menos5h:['Entendido. Vou calibrar o plano para um ritmo realista.'],'5_20h':['Boa disponibilidade. Suficiente para avançar bem.'],'20_40h':['Ótimo ritmo. Com esse foco dá pra mover muito rápido.'],fulltime:['Tempo integral. Vamos montar algo ambicioso e sólido.']};
-const NAME_R=['Ótimo nome. Vamos construir o diagnóstico dessa solução.','Perfeito. Agora vou analisar cada detalhe dessa solução.','Excelente. Começo a estruturar o diagnóstico agora.','Registrado. Vamos ver o que essa solução tem de potencial.'];
-
-let currentStep=1, answers={}, selectedTools=[];
-let jaCobra=null, ticketAtual=null, usuariosPagantes=null;
-function rand(a){return a[Math.floor(Math.random()*a.length)];}
-function setReady(v){document.getElementById('btnNext').classList.toggle('ready',!!v);}
-function addMsg(text,isUser=false,delay=0){
-  const t=document.getElementById('typingEl');
-  setTimeout(()=>{
-    if(!isUser){t.classList.add('on');setTimeout(()=>{t.classList.remove('on');_app(text,false);},680);}
-    else{_app(text,true);}
-  },delay);
-}
-function _app(text,isUser){
-  const c=document.getElementById('chatMessages');
-  const d=document.createElement('div');
-  d.className='msg'+(isUser?' user':'');
-  d.innerHTML=`<div class="msg-av">${isUser?'Eu':'Steve'}</div><div class="msg-bubble${isUser?' user':''}">${text}</div>`;
-  c.appendChild(d);c.scrollTop=c.scrollHeight;
-}
-function renderStep(){
-  const s=STEPS[currentStep-1];
-  const sq = document.getElementById('stepQuestion');
-  sq.innerHTML = s.question;
-  sq.style.animation = 'none';
-  sq.offsetHeight;
-  sq.style.animation = 'fadeUp 0.45s cubic-bezier(0.16,1,0.3,1) both';
-  document.getElementById('optionsLabel').textContent=s.label;
-  document.getElementById('progressFill').style.width=((currentStep-1)/TOTAL_STEPS*100)+'%';
-  document.getElementById('progressCount').textContent=currentStep+' / '+TOTAL_STEPS;
-  document.getElementById('btnNext').textContent=s.nextBtn||'Continuar';
-  setReady(false);
-  const c=document.getElementById('optionsContent');c.innerHTML='';
-
-  if(s.type==='name'){
-    const wrap=document.createElement('div');wrap.className='name-step';
-    const inp=document.createElement('input');
-    inp.type='text';inp.className='name-input-big';inp.id='nameInput';
-    inp.placeholder='Ex: MeuApp, ContaFlow, JurisAI...';inp.maxLength=60;
-    inp.oninput=()=>{answers.nomeSolucao=inp.value.trim();setReady(inp.value.trim().length>1);};
-    inp.addEventListener('keydown',e=>{if(e.key==='Enter'&&inp.value.trim().length>1)document.getElementById('btnNext').click();});
-    wrap.appendChild(inp);
-    const sl=document.createElement('p');sl.className='name-suggest-label';sl.textContent='Sugestões de nome (clique para usar)';wrap.appendChild(sl);
-    const sugs=document.createElement('div');sugs.className='name-suggestions';sugs.id='nameSugs';
-    const defaultSugs=['SolutionAI','IdeaFlow','ScaleUp','StartApp'];
-    defaultSugs.forEach(s=>{
-      const btn=document.createElement('span');btn.className='name-sug';btn.textContent=s;
-      btn.onclick=()=>{inp.value=s;answers.nomeSolucao=s;setReady(true);inp.focus();};
-      sugs.appendChild(btn);
-    });
-    wrap.appendChild(sugs);c.appendChild(wrap);
-    setTimeout(()=>inp.focus(),80);
-  }
-
-  if(s.type==='single'){
-    const items=currentStep===2?AREAS:currentStep===6?INVESTMENTS:currentStep===7?USERS:DEDICATION;
-    items.forEach((item,i)=>{
-      const d=document.createElement('div');d.className='opt';d.style.animationDelay=(i*0.04)+'s';d.dataset.value=item.value;
-      d.onclick=()=>selectSingle(d,item);
-      d.innerHTML=`${item.icon?`<span class="opt-icon">${item.icon}</span>`:''}<div class="opt-content"><div class="opt-label">${item.label}</div>${item.sub?`<div class="opt-sub">${item.sub}</div>`:''}</div><span class="opt-check">✓</span>`;
-      c.appendChild(d);
-    });
-    if(currentStep===7){
-      // Bloco de monetização: revelado quando o usuário já tem usuários
-      jaCobra=null;ticketAtual=null;usuariosPagantes=null;
-      const mb=document.createElement('div');mb.className='monetiz-block';mb.id='monetizBlock';
-      mb.innerHTML=`
-        <p class="section-label">Já cobra dos seus usuários?</p>
-        <div class="monetiz-toggle">
-          <button type="button" class="monetiz-opt" data-val="sim">Sim</button>
-          <button type="button" class="monetiz-opt" data-val="nao">Ainda não</button>
-        </div>
-        <div class="charge-fields" id="chargeFields">
-          <label class="monetiz-label">Quanto cobra por usuário? (R$)</label>
-          <input type="number" min="0" step="0.01" class="steve-input" id="ticketInput" placeholder="Ex: 49.90">
-          <label class="monetiz-label">Quantos pagantes você tem?</label>
-          <input type="number" min="0" step="1" class="steve-input" id="payingInput" placeholder="Ex: 120">
-        </div>`;
-      c.appendChild(mb);
-      mb.querySelectorAll('.monetiz-opt').forEach(b=>{
-        b.onclick=()=>{
-          mb.querySelectorAll('.monetiz-opt').forEach(x=>x.classList.remove('selected'));
-          b.classList.add('selected');
-          const cf=mb.querySelector('#chargeFields');
-          if(b.dataset.val==='sim'){jaCobra=true;cf.classList.add('open');}
-          else{
-            jaCobra=false;cf.classList.remove('open');ticketAtual=null;usuariosPagantes=null;
-            const ti=mb.querySelector('#ticketInput'),pi=mb.querySelector('#payingInput');if(ti)ti.value='';if(pi)pi.value='';
-          }
-        };
-      });
-      const ti=mb.querySelector('#ticketInput'),pi=mb.querySelector('#payingInput');
-      ti.oninput=()=>{ticketAtual=ti.value!==''?parseFloat(ti.value):null;};
-      pi.oninput=()=>{usuariosPagantes=pi.value!==''?parseInt(pi.value,10):null;};
-    }
-  }
-
-  if(s.type==='textarea'){
-    if(currentStep===3&&answers.step2){
-      const ins=AREA_INSIGHTS[answers.step2];
-      if(ins){const b=document.createElement('div');b.className='insight-box';b.innerHTML=`<span class="insight-label">📡 ${ins.title}</span><p class="insight-text">${ins.text}</p>`;c.appendChild(b);}
-    }
-    const chipSet=currentStep===3?PROBLEM_CHIPS:currentStep===4?SOLUTION_CHIPS:null;
-    const chips=chipSet&&answers.step2?chipSet[answers.step2]:null;
-    const ta=document.createElement('textarea');ta.className='steve-textarea';ta.placeholder=s.placeholder||'';ta.id='taInput';
-    ta.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();if(ta.value.trim().length>15)document.getElementById('btnNext').click();}});
-    ta.oninput=()=>{answers[`step${currentStep}`]=ta.value.trim();setReady(ta.value.trim().length>15);};
-
-    if(chips&&chips.length){
-      // Modo chips: atalhos contextuais por área, com escape para texto livre
-      const chipWrap=document.createElement('div');chipWrap.className='chip-wrap';
-      chips.forEach((txt,i)=>{
-        const chip=document.createElement('span');chip.className='chip';chip.textContent=txt;chip.style.animationDelay=(i*0.04)+'s';
-        chip.onclick=()=>{
-          chipWrap.querySelectorAll('.chip').forEach(x=>x.classList.remove('selected'));
-          chip.classList.add('selected');
-          ta.disabled=false;ta.value=txt;
-          answers[`step${currentStep}`]=txt;setReady(true);
-        };
-        chipWrap.appendChild(chip);
-      });
-      c.appendChild(chipWrap);
-
-      ta.disabled=true;c.appendChild(ta);
-
-      const describe=document.createElement('span');describe.className='describe-link';describe.textContent='Descrever do meu jeito';
-      describe.onclick=()=>{
-        chipWrap.style.display='none';describe.style.display='none';
-        ta.disabled=false;ta.value='';answers[`step${currentStep}`]='';setReady(false);
-        setTimeout(()=>ta.focus(),60);
-      };
-      c.appendChild(describe);
-
-      const h=document.createElement('p');h.className='input-hint';h.textContent='Escolha uma opção acima ou descreva do seu jeito.';c.appendChild(h);
-    }else{
-      c.appendChild(ta);
-      const h=document.createElement('p');h.className='input-hint';h.textContent='Enter para enviar. Shift+Enter para nova linha.';c.appendChild(h);
-      setTimeout(()=>ta.focus(),80);
-    }
-  }
-
-  if(s.type==='multi-tools'){
-    selectedTools=[];
-    TOOLS.forEach((tool,i)=>{
-      const d=document.createElement('div');d.className='opt';d.style.animationDelay=(i*0.04)+'s';d.dataset.value=tool.value;
-      d.onclick=e=>{if(e.target.closest('.opt-expand-btn'))return;toggleTool(d,tool);};
-      d.innerHTML=`<span class="opt-icon">${tool.icon}</span><div class="opt-content"><div class="opt-label">${tool.label}</div><div class="opt-sub">${tool.sub}</div><button class="opt-expand-btn" data-tool="${tool.value}"><svg width="9" height="9" viewBox="0 0 24 24" fill="none"><path d="M12 5v14m-7-7h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg> Saiba mais</button><div class="opt-detail" id="detail-${tool.value}">${tool.detail}</div></div><span class="opt-check">✓</span>`;
-      c.appendChild(d);
-    });
-    const sl=document.createElement('p');sl.className='section-label';sl.textContent='Usa outra ferramenta? Escreva abaixo';c.appendChild(sl);
-    const inp=document.createElement('input');inp.type='text';inp.className='steve-input';inp.placeholder='Ex: Voiceflow, Dify, Flowise...';
-    inp.oninput=()=>{answers.toolOther=inp.value.trim();if(inp.value.trim().length>0)setReady(true);};c.appendChild(inp);
-    const none=document.createElement('div');none.className='opt';none.style.marginTop='8px';none.dataset.value='nenhuma';
-    none.innerHTML=`<span class="opt-icon">🔍</span><div class="opt-content"><div class="opt-label">Não conheço nenhuma</div><div class="opt-sub">Vou sugerir as melhores para o seu contexto</div></div><span class="opt-check">✓</span>`;
-    none.onclick=()=>selectNone(none);c.appendChild(none);
-    c.querySelectorAll('.opt-expand-btn').forEach(btn=>{
-      btn.addEventListener('click',e=>{
-        e.stopPropagation();const key=btn.dataset.tool;const det=document.getElementById(`detail-${key}`);const open=det.classList.contains('open');
-        c.querySelectorAll('.opt-detail').forEach(d=>d.classList.remove('open'));
-        c.querySelectorAll('.opt-expand-btn').forEach(b=>{b.innerHTML='<svg width="9" height="9" viewBox="0 0 24 24" fill="none"><path d="M12 5v14m-7-7h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg> Saiba mais';});
-        if(!open){det.classList.add('open');btn.innerHTML='<svg width="9" height="9" viewBox="0 0 24 24" fill="none"><path d="M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg> Fechar';}
-      });
-    });
-  }
-}
-
-function selectSingle(el,item){
-  document.querySelectorAll('#optionsContent .opt').forEach(o=>o.classList.remove('selected'));
-  el.classList.add('selected');answers[`step${currentStep}`]=item.value;setReady(true);
-  if(currentStep===2){
-    addMsg(item.label,true,50);addMsg(rand(AREA_R[item.value]||AREA_R.administrativa),false,200);
-    // Atualiza sugestões de nome baseado na área
-    const sugs=document.getElementById('nameSugs');
-    if(sugs&&NAME_SUGGESTIONS[item.value]){
-      // já passou do step de nome, mas guarda a área para sugestões futuras
-    }
-  }
-  if(currentStep===7){
-    const mb=document.getElementById('monetizBlock');
-    if(mb){
-      if(item.value==='zero'){
-        mb.classList.remove('open');
-        jaCobra=null;ticketAtual=null;usuariosPagantes=null;
-        mb.querySelectorAll('.monetiz-opt').forEach(x=>x.classList.remove('selected'));
-        const cf=mb.querySelector('#chargeFields');if(cf)cf.classList.remove('open');
-        const ti=mb.querySelector('#ticketInput'),pi=mb.querySelector('#payingInput');if(ti)ti.value='';if(pi)pi.value='';
-      }else{
-        mb.classList.add('open');
-      }
-    }
-  }
-}
-
-function toggleTool(el,tool){
-  document.querySelectorAll('#optionsContent .opt[data-value="nenhuma"]').forEach(o=>o.classList.remove('selected'));
-  selectedTools=selectedTools.filter(t=>t!=='nenhuma');
-  const sel=el.classList.contains('selected');
-  if(sel){el.classList.remove('selected');selectedTools=selectedTools.filter(t=>t!==tool.value);}
-  else{el.classList.add('selected');selectedTools.push(tool.value);}
-  answers.step5=selectedTools.join(',');setReady(selectedTools.length>0);
-}
-
-function selectNone(el){
-  document.querySelectorAll('#optionsContent .opt').forEach(o=>o.classList.remove('selected'));
-  el.classList.add('selected');selectedTools=['nenhuma'];answers.step5='nenhuma';setReady(true);
-}
-
-function nextStep(){
-  if(currentStep===1){
-    const nome=answers.nomeSolucao||'';
-    if(nome){addMsg(nome,true,0);addMsg(rand(NAME_R),false,200);}
-  }
-  if(currentStep===3){const v=answers.step3||'';if(v){addMsg(v.length>100?v.substring(0,100)+'...':v,true,0);addMsg(rand(PROBLEM_R),false,200);}}
-  if(currentStep===4){const v=answers.step4||'';if(v){addMsg(v.length>100?v.substring(0,100)+'...':v,true,0);addMsg(rand(SOLUTION_R),false,200);}}
-  if(currentStep===5){
-    if(selectedTools.includes('nenhuma')){addMsg('Não conheço nenhuma ferramenta ainda',true,0);addMsg('Sem problemas. Vou mapear as ferramentas certas para o seu contexto.',false,200);}
-    else if(selectedTools.length>0){
-      const toolLabels=selectedTools.map(v=>TOOLS.find(t=>t.value===v)?.label||v);
-      const other=answers.toolOther?`, ${answers.toolOther}`:'';
-      addMsg(`Ferramentas: ${toolLabels.join(', ')}${other}`,true,0);addMsg(rand(TOOLS_R),false,200);
-    }
-  }
-  if(currentStep===6){
-    const v=answers.step6;
-    if(v){
-      const lab={zero:'R$ 0 por mês',ate100:'Até R$ 100 por mês','100a500':'R$ 100 a 500 por mês','500mais':'R$ 500 ou mais por mês',depois:'Definir depois do faturamento'};
-      addMsg(lab[v]||v,true,0);if(v==='zero'){addMsg(rand(ZERO_BUDGET),false,200);}else{const r=INVEST_R[v];if(r)addMsg(rand(r),false,200);}
-    }
-  }
-  if(currentStep===7){
-    const v=answers.step7;
-    if(v){
-      const lab={zero:'Ainda não lancei','1_50':'1 a 50 usuários','50_500':'50 a 500 usuários','500_5000':'500 a 5.000 usuários','5000mais':'5.000 ou mais usuários'};
-      addMsg(lab[v]||v,true,0);const r=USER_R[v];if(r)addMsg(rand(r),false,200);
-    }
-  }
-  if(currentStep===8){
-    const v=answers.step8;
-    if(v){
-      const lab={menos5h:'Menos de 5h por semana','5_20h':'5 a 20h por semana','20_40h':'20 a 40h por semana',fulltime:'Tempo integral'};
-      addMsg(lab[v]||v,true,0);const r=DEDIC_R[v];if(r)addMsg(rand(r),false,200);
-      submitOnboarding();return;
-    }
-  }
-  currentStep++;
-  setTimeout(()=>{renderStep();const ns=STEPS[currentStep-1];addMsg(ns.label+'.',false,450);},350);
-}
-
-function submitOnboarding(){
-  setTimeout(()=>{
-    document.getElementById('loadingOverlay').classList.add('on');
-    // Remapeia steps para manter compatibilidade com o backend
-    const payload={
-      nomeSolucao: answers.nomeSolucao,
-      step1: answers.step2, // área
-      step2: answers.step3, // problema
-      step3: answers.step4, // solução
-      step4: answers.step5, // ferramentas
-      step5: answers.step6, // investimento
-      step6: answers.step7, // usuários
-      step7: answers.step8, // dedicação
-      toolOther: answers.toolOther,
-      tools: selectedTools,
-      ja_cobra: jaCobra,            // boolean ou null
-      ticket_atual: ticketAtual,    // number ou null
-      usuarios_pagantes: usuariosPagantes  // number ou null
-    };
-    localStorage.setItem('steveOnboarding',JSON.stringify(payload));
-    setTimeout(()=>{window.location.href='minhas-analises.html';},4000);
-  },900);
-}
-renderStep();
-</script>
+<script src="js/shared.js"></script>
+<script src="js/onboarding.js"></script>
 </body>
 </html>

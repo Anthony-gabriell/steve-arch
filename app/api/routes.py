@@ -4,17 +4,24 @@ Endpoint principal: recebe respostas do onboarding e retorna diagnóstico estrut
 
 import json
 import logging
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from typing import Optional, List
 from anthropic import Anthropic
+from slowapi import Limiter
+from slowapi.util import get_remote_address
 
 from app.core.config import settings
+
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
 client = Anthropic(api_key=settings.anthropic_api_key)
+
+# Rate limiter: 3 diagnósticos por IP por dia
+limiter = Limiter(key_func=get_remote_address)
+
 
 # ─── SCHEMAS ──────────────────────────────────────────────────────────────────
 
@@ -37,18 +44,18 @@ class OnboardingData(BaseModel):
 class DiagnosticoResponse(BaseModel):
     resumo_executivo: str
     score_escalabilidade: int
-    score_label: str          # qualitative label, no number shown to user
-    score_narrativa: str      # one contextual sentence, max 140 chars
-    problema_detalhado: str   # 2-3 paragraphs analyzing the problem from an architect's perspective
-    solucao_detalhada: str    # 2-3 paragraphs evaluating the proposed solution
+    score_label: str
+    score_narrativa: str
+    problema_detalhado: str
+    solucao_detalhada: str
     gargalos: list
     stack_recomendada: list
     roadmap: list
     projecao_financeira: dict
     proximo_passo: str
-    proximos_passos_fila: list  # 4-6 sequential next steps
-    riscos_fundamentais: list   # 2-4 fundamental risks
-    solucoes_similares: Optional[list] = None  # DEPRECATED, kept for frontend compat
+    proximos_passos_fila: list
+    riscos_fundamentais: list
+    solucoes_similares: Optional[list] = None
 
 
 # ─── PROMPT BUILDER ───────────────────────────────────────────────────────────
@@ -98,7 +105,6 @@ def build_diagnostic_prompt(data: OnboardingData) -> str:
     usuarios = USERS_MAP.get(data.step6, data.step6 or "não informado")
     dedicacao = DEDICATION_MAP.get(data.step7, data.step7 or "não informada")
 
-    # Monetization context
     monetizacao_info = ""
     if data.ja_cobra:
         monetizacao_info = f"""
@@ -108,7 +114,6 @@ def build_diagnostic_prompt(data: OnboardingData) -> str:
     else:
         monetizacao_info = "**Already charging:** No"
 
-    # Extra instruction when the user already monetizes
     monetizacao_instrucao = ""
     if data.ja_cobra:
         monetizacao_instrucao = (
@@ -133,22 +138,22 @@ Your task is to generate a complete architectural diagnosis of this solution.
 
 CRITICAL INSTRUCTIONS:
 1. Respond ONLY with a valid JSON object. No markdown, no backticks, no explanation outside the JSON.
-2. Be specific and technical — not generic. Base everything on the user's actual context.
-3. Never use em dashes (—) in any text. Use periods or commas instead.
+2. Be specific and technical, not generic. Base everything on the user's actual context.
+3. Never use em dashes in any text. Use periods or commas instead.
 4. Write all text fields in Brazilian Portuguese.
 5. The score_escalabilidade must be an honest assessment (0-100) based on current tools and architecture.
 6. NEVER use technical jargon without explaining it in plain terms. Apply these replacements throughout all text fields:
 7. For problema_detalhado and solucao_detalhada, write technically dense prose. Minimum 400 characters each, maximum 900 characters each. Use paragraph breaks (\n\n) between paragraphs. No bullet lists, no markdown, just plain text with paragraph breaks.
-   - OCR → "leitura automática de documentos"
-   - billing → "cobrança automática"
-   - multi-tenant → "separação de dados por cliente"
-   - deploy → "publicar no ar"
-   - API → "conexão entre sistemas"
-   - backend → "servidor"
-   - frontend → "tela do usuário"
-   - cache → "dados salvos temporariamente"
-   - rate limit → "limite de uso simultâneo"
-   - pipeline → "fluxo automatizado"
+   - OCR é "leitura automática de documentos"
+   - billing é "cobrança automática"
+   - multi-tenant é "separação de dados por cliente"
+   - deploy é "publicar no ar"
+   - API é "conexão entre sistemas"
+   - backend é "servidor"
+   - frontend é "tela do usuário"
+   - cache é "dados salvos temporariamente"
+   - rate limit é "limite de uso simultâneo"
+   - pipeline é "fluxo automatizado"
    - Always write as if explaining to someone who has never programmed. Be technical in depth but simple in language.
 7. Map score_escalabilidade to one of exactly these labels in score_label: 'Precisa de base sólida' (0-30), 'Boa base, ajustes críticos' (31-60), 'Pronto para crescer' (61-80), 'Arquitetura sólida' (81-100).{monetizacao_instrucao}
 
@@ -236,10 +241,11 @@ ADDITIONAL FIELD GUIDANCE:
 # ─── ENDPOINTS ────────────────────────────────────────────────────────────────
 
 @router.post("/diagnostico", response_class=JSONResponse)
-async def gerar_diagnostico(data: OnboardingData):
+@limiter.limit("3/minute")
+async def gerar_diagnostico(request: Request, data: OnboardingData):
     """
     Recebe as respostas do onboarding e retorna o diagnóstico completo do Steve Arch.
-    Chama a Anthropic API com extended thinking para análise profunda.
+    Rate limit: 3 diagnósticos por IP por dia.
     """
     try:
         prompt = build_diagnostic_prompt(data)
@@ -257,7 +263,6 @@ async def gerar_diagnostico(data: OnboardingData):
 
         raw_text = response.content[0].text.strip()
 
-        # Remove markdown fences se existirem
         if raw_text.startswith("```"):
             raw_text = raw_text.split("```")[1]
             if raw_text.startswith("json"):
@@ -266,7 +271,6 @@ async def gerar_diagnostico(data: OnboardingData):
 
         diagnostico = json.loads(raw_text)
 
-        # Valida campos obrigatórios
         required_fields = [
             "resumo_executivo", "score_escalabilidade", "score_label",
             "score_narrativa", "problema_detalhado", "solucao_detalhada",
@@ -278,10 +282,8 @@ async def gerar_diagnostico(data: OnboardingData):
             if field not in diagnostico:
                 raise ValueError(f"Campo ausente no diagnóstico: {field}")
 
-        # Garante que o score é inteiro entre 0 e 100
         diagnostico["score_escalabilidade"] = max(0, min(100, int(diagnostico["score_escalabilidade"])))
 
-        # Ensure score_label exists even if model forgot
         valid_labels = [
             "Precisa de base sólida",
             "Boa base, ajustes críticos",
@@ -319,11 +321,9 @@ async def gerar_diagnostico(data: OnboardingData):
 
 @router.get("/health")
 async def health_check():
-    """Verifica se o backend está funcionando."""
     return {"status": "ok", "service": "Steve Arch API"}
 
 
 @router.get("/areas")
 async def listar_areas():
-    """Retorna as áreas disponíveis para o onboarding."""
     return {"areas": list(AREA_MAP.values())}

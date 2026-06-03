@@ -1,10 +1,12 @@
 """
 Entrypoint do Steve Arch — FastAPI
 """
-
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.api.routes import router
+from slowapi import _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
+
+from app.api.routes import router, limiter
 
 app = FastAPI(
     title="Steve Arch API",
@@ -12,10 +14,14 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# CORS — permite o frontend local chamar o backend
+# Rate limit: registra o limiter compartilhado do routes.py
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
+# CORS: permite o frontend local chamar o backend
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Em produção, restringir para o domínio real
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

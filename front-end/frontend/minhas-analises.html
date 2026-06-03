@@ -336,7 +336,7 @@
     <div class="nav-meta">
       <span id="navDiagNum">DIAGNÓSTICO</span>
       <span class="live">SESSÃO ATIVA</span>
-      <a href="onboarding.html" class="btn-nav primary">Nova análise</a>
+      <a href="onboarding.html" class="btn-nav primary" onclick="limparCacheAnalise()">Nova análise</a>
     </div>
   </nav>
 
@@ -1162,20 +1162,65 @@ async function init(){
   const raw=localStorage.getItem('steveOnboarding');
   if(!raw){hide('loadingState');show('emptyState');return;}
   const onboarding=JSON.parse(raw);
-  const cached=localStorage.getItem('steveDiagnostico');
-  if(cached){try{renderDashboard(JSON.parse(cached),onboarding);return;}catch(e){localStorage.removeItem('steveDiagnostico');}}
+
+  // Gera uma chave única baseada no input atual
+  const inputHash = btoa(unescape(encodeURIComponent(JSON.stringify(onboarding)))).slice(0,32);
+  const cacheKey = 'steveDiagnostico_' + inputHash;
+
+  // Limpa caches antigos (de outras análises)
+  Object.keys(localStorage).forEach(k => {
+    if (k.startsWith('steveDiagnostico_') && k !== cacheKey) {
+      localStorage.removeItem(k);
+    }
+  });
+  // Limpa cache legado sem hash
+  localStorage.removeItem('steveDiagnostico');
+
+  const cached = localStorage.getItem(cacheKey);
+  if(cached){
+    try{
+      renderDashboard(JSON.parse(cached), onboarding);
+      return;
+    }catch(e){
+      localStorage.removeItem(cacheKey);
+    }
+  }
+
   try{
-    const res=await fetch(API_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(onboarding)});
+    const res = await fetch(API_URL,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify(onboarding)
+    });
+
+    // Trata rate limit explicitamente
+    if(res.status === 429){
+      hide('loadingState'); show('emptyState');
+      document.querySelector('.empty-title').textContent = 'Limite diário atingido';
+      document.querySelector('.empty-sub').textContent = 'Você já fez 3 análises hoje. Volte amanhã para fazer novas análises.';
+      return;
+    }
+
     if(!res.ok) throw new Error('API error');
-    const data=await res.json();
-    localStorage.setItem('steveDiagnostico',JSON.stringify(data));
-    renderDashboard(data,onboarding);
+
+    const data = await res.json();
+    localStorage.setItem(cacheKey, JSON.stringify(data));
+    renderDashboard(data, onboarding);
   }catch(err){
-    hide('loadingState');show('emptyState');
-    document.querySelector('.empty-title').textContent='Erro ao gerar diagnóstico';
-    document.querySelector('.empty-sub').textContent='Verifique se o servidor está rodando e tente novamente.';
+    hide('loadingState'); show('emptyState');
+    document.querySelector('.empty-title').textContent = 'Erro ao gerar diagnóstico';
+    document.querySelector('.empty-sub').textContent = 'Verifique se o servidor está rodando e tente novamente.';
   }
 }
+function limparCacheAnalise(){
+  Object.keys(localStorage).forEach(k => {
+    if (k.startsWith('steveDiagnostico')) {
+      localStorage.removeItem(k);
+    }
+  });
+  localStorage.removeItem('steveOnboarding');
+}
+
 init();
 </script>
 <script>

@@ -140,192 +140,216 @@ function exportPDF() {
   const onboarding = JSON.parse(localStorage.getItem('steveOnboarding') || '{}');
   const nome = (onboarding.nomeSolucao || 'Solucao').trim();
   const area = AREA_LABELS[onboarding.step1] || '';
-  const M = { left: 22, right: 188, top: 25, bottom: 270 };
+  const hoje = new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' });
+  const parseWeeks = (dur) => { const n = (dur.match(/\d+/g) || ['4']).map(Number); return n.reduce((a,b)=>a+b,0)/n.length; };
+  const sevLabel = (s) => ({ alta:'CRITICO', media:'ATENCAO', baixa:'OBSERVAR' })[s] || 'OBSERVAR';
+
+  const M = { left: 24, right: 186, top: 26, bottom: 266 };
+  const CW = M.right - M.left;
+  const LH = 4.6;
   let y = M.top;
-  const CYAN_NEON = [46, 232, 176], CYAN_INK = [14, 125, 93], DARK_INK = [10, 14, 13], GRAY_TEXT = [55, 65, 60], GRAY_META = [90, 101, 96];
 
-  function drawHeader() {
-    doc.setTextColor(CYAN_INK[0], CYAN_INK[1], CYAN_INK[2]); doc.setFontSize(7); doc.setFont('helvetica', 'normal');
-    doc.text('STEVE ARCH', M.left, 14, { charSpace: 1.2 });
-    const rightText = 'DIAGNOSTICO TECNICO';
-    const rightTextWidth = doc.getTextWidth(rightText) + (rightText.length * 1.2);
-    doc.text(rightText, M.right - rightTextWidth, 14, { charSpace: 1.2 });
-    doc.setDrawColor(CYAN_INK[0], CYAN_INK[1], CYAN_INK[2]); doc.setLineWidth(0.2); doc.line(M.left, 17, M.right, 17);
+  const INK = [28, 32, 36], BODY = [55, 60, 64], MUTE = [120, 126, 130], HAIR = [210, 215, 218];
+  const ACCENT = [13, 110, 82];
+  const NEON = [46, 232, 176];
+  const RED = [196, 52, 70], AMBER = [176, 120, 22], GREEN = [13, 110, 82];
+  const MONO = 'courier';
+
+  const setF = (font, style, size, color) => { doc.setFont(font, style); doc.setFontSize(size); doc.setTextColor(...color); };
+  const sevColor = s => ({ alta: RED, media: AMBER, baixa: GREEN })[s] || GREEN;
+
+  function runhead() {
+    setF(MONO, 'normal', 8, MUTE);
+    doc.text('STEVE ARCH', M.left, 15);
+    doc.text(`DIAG-ARCH/${nome.toUpperCase()}`, M.right, 15, { align: 'right' });
+    doc.setDrawColor(...NEON); doc.setLineWidth(0.8); doc.line(M.left, 17.5, M.left + 16, 17.5);
+    doc.setDrawColor(...HAIR); doc.setLineWidth(0.2); doc.line(M.left + 18, 17.5, M.right, 17.5);
   }
-  function newPage() { doc.addPage(); drawHeader(); y = M.top + 6; }
-  function checkSpace(needed) { if (y + needed > M.bottom) newPage(); }
-  function sectionTitle(num, title) {
-    y += 4; checkSpace(26);
-    doc.setTextColor(CYAN_INK[0], CYAN_INK[1], CYAN_INK[2]); doc.setFontSize(8); doc.setFont('helvetica', 'normal');
-    doc.text(`SECAO ${num}`, M.left, y, { charSpace: 1.5 }); y += 8;
-    doc.setTextColor(DARK_INK[0], DARK_INK[1], DARK_INK[2]); doc.setFontSize(17); doc.setFont('helvetica', 'bold');
-    doc.text(title, M.left, y); y += 3;
-    doc.setDrawColor(CYAN_INK[0], CYAN_INK[1], CYAN_INK[2]); doc.setLineWidth(0.6); doc.line(M.left, y, M.left + 30, y); y += 11;
+  function footer(n) {
+    doc.setDrawColor(...NEON); doc.setLineWidth(0.8); doc.line(M.left, 271, M.left + 16, 271);
+    doc.setDrawColor(...HAIR); doc.setLineWidth(0.2); doc.line(M.left + 18, 271, M.right, 271);
+    setF(MONO, 'normal', 8, MUTE);
+    doc.text('Steve Arch', M.left, 276);
+    doc.text(`[Pagina ${n}]`, M.right, 276, { align: 'right' });
   }
-  function subTitle(text) { checkSpace(10); y += 3; doc.setTextColor(10, 14, 13); doc.setFontSize(11); doc.setFont('helvetica', 'bold'); doc.text(text, M.left, y); y += 6; }
-  function paragraph(text, size = 9.5, color = [55, 65, 60]) {
+  function newPage() { doc.addPage(); runhead(); y = M.top; }
+  function need(h) { if (y + h > M.bottom) newPage(); }
+
+  function para(text, { size = 9.5, color = BODY, indent = 0, gap = LH * 0.7 } = {}) {
     if (!text) return;
-    doc.setTextColor(color[0], color[1], color[2]); doc.setFontSize(size); doc.setFont('helvetica', 'normal');
-    const lines = doc.splitTextToSize(String(text), M.right - M.left);
-    lines.forEach(line => { checkSpace(5.5); doc.text(line, M.left, y); y += 5; });
-    y += 1.5;
+    setF(MONO, 'normal', size, color);
+    doc.splitTextToSize(String(text), CW - indent).forEach(l => { need(LH); doc.text(l, M.left + indent, y); y += LH; });
+    y += gap;
   }
-  function metaRow(label, value) {
-    checkSpace(8); doc.setTextColor(GRAY_META[0], GRAY_META[1], GRAY_META[2]); doc.setFontSize(7.5); doc.setFont('helvetica', 'normal');
-    doc.text(label.toUpperCase(), M.left, y, { charSpace: 1 });
-    const valueX = M.left + 50; const valueMaxWidth = M.right - valueX;
-    doc.setTextColor(DARK_INK[0], DARK_INK[1], DARK_INK[2]); doc.setFontSize(10);
-    const valueLines = doc.splitTextToSize(String(value), valueMaxWidth);
-    valueLines.forEach((line, idx) => { if (idx > 0) { y += 5; checkSpace(5); } doc.text(line, valueX, y); });
-    y += 6.5;
+  function section(num, title) {
+    need(15); y += 3;
+    setF(MONO, 'bold', 11, INK);
+    doc.text(`${num}.  ${title}`, M.left, y);
+    y += 2.5;
+    doc.setDrawColor(...NEON); doc.setLineWidth(0.9); doc.line(M.left, y, M.left + 20, y);
+    doc.setDrawColor(...INK); doc.setLineWidth(0.3); doc.line(M.left + 22, y, M.right, y);
+    y += 6;
   }
-  function severityTag(severity) {
-    const labels = { alta: 'CRITICO', media: 'ATENCAO', baixa: 'OBSERVAR' };
-    const colors = { alta: [255, 77, 109], media: [255, 179, 71], baixa: CYAN_INK };
-    const sc = colors[severity] || CYAN_INK;
-    doc.setTextColor(sc[0], sc[1], sc[2]); doc.setFontSize(7);
-    doc.text(labels[severity] || 'OBSERVAR', M.left, y, { charSpace: 1.5 }); y += 5;
+  function subsec(num, title) {
+    need(9); y += 1.5;
+    setF(MONO, 'bold', 9.5, ACCENT);
+    doc.text(`${num}  ${title}`, M.left, y); y += 5;
   }
 
-  doc.setFillColor(8, 11, 10); doc.rect(0, 0, 210, 297, 'F');
-  doc.setDrawColor(46, 232, 176); doc.setLineWidth(0.3); doc.line(M.left, 30, 50, 30);
-  doc.setTextColor(46, 232, 176); doc.setFontSize(8); doc.setFont('helvetica', 'normal');
-  doc.text('STEVE ARCH', M.left, 36, { charSpace: 3 });
-  doc.setTextColor(160, 168, 165); doc.setFontSize(9);
-  doc.text('ARQUITETO DE SOLUCOES ESCALAVEIS', M.left, 42, { charSpace: 2 });
-  doc.setTextColor(140, 150, 145); doc.setFontSize(10);
-  doc.text('DIAGNOSTICO TECNICO', M.left, 130, { charSpace: 2.5 });
-  doc.setTextColor(255, 255, 255); doc.setFontSize(34); doc.setFont('helvetica', 'bold');
-  const nameUpper = nome.toUpperCase();
-  const nameLines = doc.splitTextToSize(nameUpper, 175);
-  nameLines.forEach((ln, i) => doc.text(ln, M.left, 150 + (i * 13)));
-  doc.setDrawColor(46, 232, 176); doc.setLineWidth(0.5); doc.line(M.left, 175, M.left + 25, 175);
-  doc.setTextColor(160, 168, 165); doc.setFontSize(11); doc.setFont('helvetica', 'normal');
-  doc.text(area, M.left, 184);
-  doc.setTextColor(90, 101, 96); doc.setFontSize(9);
-  doc.text('Analise arquitetural completa . ' + D.score_label, M.left, 192);
-  doc.setTextColor(90, 101, 96); doc.setFontSize(8);
-  const dt = new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' });
-  doc.text(`Gerado em ${dt}`, M.left, 270);
-  doc.text('Este documento e um ativo tecnico. Use livremente.', M.left, 276);
+  // ─── CAPA ───
+  doc.setFillColor(9, 12, 11); doc.rect(0, 0, 210, 297, 'F');
+  doc.setDrawColor(...NEON); doc.setLineWidth(1.2);
+  doc.line(20, 20, 36, 20); doc.line(20, 20, 20, 36);
+  doc.line(190, 277, 174, 277); doc.line(190, 277, 190, 261);
 
+  setF(MONO, 'bold', 9, NEON); doc.text('STEVE ARCH', 28, 42, { charSpace: 2 });
+  setF(MONO, 'normal', 8, [140, 148, 144]); doc.text('ENGENHARIA DE SOFTWARE', 28, 48, { charSpace: 1 });
+
+  setF(MONO, 'normal', 9, [120, 128, 124]);
+
+  setF(MONO, 'bold', 30, [255, 255, 255]);
+  const nameLines = doc.splitTextToSize(nome.toUpperCase(), 150);
+  let cy = 130; nameLines.forEach(l => { doc.text(l, 28, cy); cy += 13; });
+  doc.setDrawColor(...NEON); doc.setLineWidth(1); doc.line(28, cy - 4, 28 + 22, cy - 4);
+  cy += 4;
+  setF(MONO, 'normal', 11, NEON); doc.text(area, 28, cy); cy += 14;
+
+  setF(MONO, 'normal', 7.5, [100, 108, 104]);
+  doc.text('Este documento e um ativo tecnico.', 28, 268, { charSpace: 0.3 });
+
+  // ─── PAGINA 1 ───
   newPage();
-  sectionTitle('01', 'A Solucao');
-  metaRow('Nome', nome); metaRow('Area de atuacao', area); metaRow('Avaliacao', D.score_label);
-  y += 2; paragraph(D.score_narrativa, 10); y += 2;
-  subTitle('Resumo executivo'); paragraph(D.resumo_executivo);
+  setF(MONO, 'normal', 9, BODY);
+  const metaL = ['Steve Arch Engineering', 'Categoria: Diagnostico Tecnico', 'Documento: DIAG-ARCH-001', `Emitido: ${hoje}`];
+  const metaR = ['Solucao: ' + nome, 'Dominio: ' + area, 'Status: ' + D.score_label, 'Versao: 1.0'];
+  let mh = y;
+  metaL.forEach((t, i) => doc.text(t, M.left, mh + i * 5));
+  metaR.forEach((t, i) => { const w = doc.getTextWidth(t); doc.text(t, M.right - w, mh + i * 5); });
+  y = mh + metaL.length * 5 + 4;
+  doc.setDrawColor(...NEON); doc.setLineWidth(0.8); doc.line(M.left, y, M.left + 20, y);
+  doc.setDrawColor(...INK); doc.setLineWidth(0.4); doc.line(M.left + 22, y, M.right, y);
+  y += 12;
 
-  y += 5; sectionTitle('02', 'O Problema Identificado');
-  doc.setTextColor(GRAY_META[0], GRAY_META[1], GRAY_META[2]); doc.setFontSize(9); doc.setFont('helvetica', 'italic');
-  const userProblem = doc.splitTextToSize(`"${onboarding.step2 || 'Nao informado'}"`, M.right - M.left);
-  userProblem.forEach(line => { checkSpace(5); doc.text(line, M.left, y); y += 5; });
-  y += 4; doc.setFont('helvetica', 'normal');
-  const problemaText = D.problema_detalhado || 'Detalhamento nao disponivel.';
-  problemaText.split(/\n\n+/).forEach((p, i, arr) => { paragraph(p.trim(), 10, DARK_INK); if (i < arr.length - 1) y += 2; });
+  setF(MONO, 'bold', 15, INK);
+  const tl = doc.splitTextToSize(`Diagnostico de Escalabilidade: ${nome}`, CW);
+  tl.forEach(l => { const w = doc.getTextWidth(l); doc.text(l, M.left + (CW - w) / 2, y); y += 7; });
+  y += 6;
 
-  y += 5; sectionTitle('03', 'A Solucao Proposta');
-  doc.setTextColor(GRAY_META[0], GRAY_META[1], GRAY_META[2]); doc.setFontSize(9); doc.setFont('helvetica', 'italic');
-  const userSolution = doc.splitTextToSize(`"${onboarding.step3 || 'Nao informada'}"`, M.right - M.left);
-  userSolution.forEach(line => { checkSpace(5); doc.text(line, M.left, y); y += 5; });
-  y += 4; doc.setFont('helvetica', 'normal');
-  const solucaoText = D.solucao_detalhada || 'Analise nao disponivel.';
-  solucaoText.split(/\n\n+/).forEach((p, i, arr) => { paragraph(p.trim(), 10, DARK_INK); if (i < arr.length - 1) y += 2; });
-
-  y += 5; sectionTitle('04', 'Diagnostico Tecnico');
-  subTitle('4.1 Gargalos de escalabilidade');
-  D.gargalos.forEach((g, i) => {
-    checkSpace(20); doc.setTextColor(10, 14, 13); doc.setFontSize(10.5); doc.setFont('helvetica', 'bold');
-    doc.text(`${i + 1}. ${g.titulo}`, M.left, y); y += 5;
-    severityTag(g.severidade); paragraph(g.descricao, 9);
-    doc.setTextColor(90, 101, 96); doc.setFontSize(8); checkSpace(5);
-    doc.text(`Quando aparece: ${g.quando_aparece}`, M.left, y); y += 7;
-  });
-  subTitle('4.2 Stack tecnica recomendada');
-  D.stack_recomendada.forEach((s) => {
-    checkSpace(20); doc.setTextColor(CYAN_INK[0], CYAN_INK[1], CYAN_INK[2]); doc.setFontSize(7.5);
-    doc.text(s.componente.toUpperCase(), M.left, y, { charSpace: 1.5 }); y += 4.5;
-    doc.setTextColor(10, 14, 13); doc.setFontSize(11); doc.setFont('helvetica', 'bold');
-    doc.text(s.ferramenta, M.left, y); y += 5;
-    paragraph(s.justificativa, 9);
-    doc.setTextColor(90, 101, 96); doc.setFontSize(8); checkSpace(5);
-    doc.text(`Custo estimado: ${s.custo_estimado}    ${s.familiar ? '(voce ja conhece)' : '(novo para voce)'}`, M.left, y); y += 7;
-  });
-  subTitle('4.3 Riscos fundamentais');
-  D.riscos_fundamentais.forEach((r, i) => {
-    checkSpace(24); doc.setTextColor(10, 14, 13); doc.setFontSize(10.5); doc.setFont('helvetica', 'bold');
-    doc.text(`${i + 1}. ${r.titulo}`, M.left, y); y += 5;
-    severityTag(r.severidade); paragraph(r.descricao, 9);
-    doc.setTextColor(CYAN_INK[0], CYAN_INK[1], CYAN_INK[2]); doc.setFontSize(7.5);
-    doc.text('MITIGACAO', M.left, y, { charSpace: 1.5 }); y += 4.5;
-    paragraph(r.mitigacao, 9); y += 2;
-  });
-
-  y += 5; sectionTitle('05', 'Projecao Financeira');
-  const pf = D.projecao_financeira;
-  metaRow('Modelo sugerido', pf.modelo_sugerido); metaRow('Valor por cliente', formatBRL(pf.ticket_medio_sugerido));
-  y += 4;
-  ['conservador', 'realista', 'otimista'].forEach((tipo) => {
-    const c = pf['cenario_' + tipo]; checkSpace(16);
-    const isReal = tipo === 'realista';
-    doc.setTextColor(isReal ? CYAN_INK[0] : GRAY_META[0], isReal ? CYAN_INK[1] : GRAY_META[1], isReal ? CYAN_INK[2] : GRAY_META[2]);
-    doc.setFontSize(8); doc.setFont('helvetica', 'bold');
-    doc.text(`CENARIO ${tipo.toUpperCase()}${isReal ? ' . MAIS PROVAVEL' : ''}`, M.left, y, { charSpace: 1.2 }); y += 5.5;
-    doc.setTextColor(10, 14, 13); doc.setFontSize(10); doc.setFont('helvetica', 'normal');
-    doc.text(`${c.usuarios.toLocaleString('pt-BR')} usuarios . Receita ${formatBRL(c.receita_mensal)}/mes`, M.left, y); y += 5;
-    doc.setTextColor(55, 65, 60); doc.setFontSize(9);
-    doc.text(`Custo operacional ${formatBRL(c.custo_infra)}/mes . Margem ${c.margem}%`, M.left, y); y += 8;
-  });
-
-  y += 5; sectionTitle('06', 'Roadmap Tecnico');
-  D.roadmap.forEach((f, i) => {
-    checkSpace(28); doc.setTextColor(CYAN_INK[0], CYAN_INK[1], CYAN_INK[2]); doc.setFontSize(7.5); doc.setFont('helvetica', 'normal');
-    doc.text(`ETAPA ${i + 1}`, M.left, y, { charSpace: 1.8 });
-    const duracaoText = `DURACAO ${f.duracao.toUpperCase()}`;
-    doc.setTextColor(GRAY_META[0], GRAY_META[1], GRAY_META[2]); doc.setFontSize(7.5);
-    const duracaoWidth = doc.getTextWidth(duracaoText) + (duracaoText.length * 1.3);
-    doc.text(duracaoText, M.right - duracaoWidth, y, { charSpace: 1.3 }); y += 5;
-    doc.setTextColor(10, 14, 13); doc.setFontSize(12); doc.setFont('helvetica', 'bold');
-    doc.text(f.titulo, M.left, y); y += 6;
-    doc.setFontSize(9); doc.setFont('helvetica', 'normal'); doc.setTextColor(55, 65, 60);
-    f.objetivos.forEach(o => {
-      checkSpace(5.5);
-      const objLines = doc.splitTextToSize('. ' + o, M.right - M.left - 4);
-      objLines.forEach(line => { checkSpace(5); doc.text(line, M.left + 2, y); y += 4.8; });
-    });
-    y += 2; doc.setTextColor(CYAN_INK[0], CYAN_INK[1], CYAN_INK[2]); doc.setFontSize(7.5);
-    doc.text('ENTREGA DESTA ETAPA', M.left, y, { charSpace: 1.5 }); y += 4.5;
-    paragraph(f.entregavel, 9); y += 3;
-  });
-
-  y += 5; sectionTitle('07', 'Plano de Execucao');
-  paragraph('A sequencia exata de passos para sair de onde voce esta hoje ate o primeiro marco da sua solucao.');
+  setF(MONO, 'bold', 9.5, INK); doc.text('Resumo deste documento', M.left, y); y += 5.5;
+  para(D.resumo_executivo);
   y += 2;
-  D.proximos_passos_fila.forEach((p) => {
-    checkSpace(24); doc.setTextColor(CYAN_INK[0], CYAN_INK[1], CYAN_INK[2]); doc.setFontSize(11); doc.setFont('helvetica', 'bold');
-    doc.text(String(p.ordem).padStart(2, '0'), M.left, y);
-    doc.setTextColor(10, 14, 13); doc.setFontSize(11.5);
-    doc.text(p.titulo, M.left + 9, y); y += 5.5;
-    doc.setFontSize(9); doc.setFont('helvetica', 'normal'); doc.setTextColor(55, 65, 60);
-    paragraph(p.descricao, 9);
-    doc.setTextColor(CYAN_INK[0], CYAN_INK[1], CYAN_INK[2]); doc.setFontSize(7.5);
-    doc.text('CONCLUIDO QUANDO', M.left, y, { charSpace: 1.5 }); y += 4.5;
-    doc.setTextColor(55, 65, 60); doc.setFontSize(9); paragraph(p.criterio_conclusao, 9); y += 3;
+
+  setF(MONO, 'bold', 9.5, INK); doc.text('Indice', M.left, y); y += 5.5;
+  const toc = ['1. Problema', '2. Solucao proposta', '3. Diagnostico tecnico', '4. Projecao financeira', '5. Roadmap', '6. Plano de execucao', '7. Conclusao'];
+  setF(MONO, 'normal', 9, BODY);
+  toc.forEach(t => { need(LH); doc.text(t, M.left + 4, y); y += LH; });
+  y += 2;
+
+  // ─── SEÇÕES ───
+  section('1', 'Problema');
+  para(`Declaracao do usuario: "${onboarding.step2}"`, { color: MUTE });
+  D.problema_detalhado.split(/\n\n+/).forEach(p => para(p.trim()));
+
+  section('2', 'Solucao proposta');
+  para(`Declaracao do usuario: "${onboarding.step3}"`, { color: MUTE });
+  D.solucao_detalhada.split(/\n\n+/).forEach(p => para(p.trim()));
+
+  section('3', 'Diagnostico tecnico');
+  subsec('3.1', 'Gargalos de escalabilidade');
+  D.gargalos.forEach((g, i) => {
+    need(16);
+    setF(MONO, 'bold', 9.5, INK);
+    const head = `[G-${i + 1}] ${g.titulo}  `;
+    doc.text(head, M.left, y);
+    const hw = doc.getTextWidth(head);
+    setF(MONO, 'bold', 9.5, sevColor(g.severidade));
+    doc.text(`<${sevLabel(g.severidade)}>`, M.left + hw, y);
+    y += 5;
+    para(g.descricao, { indent: 6, gap: LH * 0.3 });
+    para(`Ponto de inflexao: ${g.quando_aparece}`, { indent: 6, color: MUTE });
+  });
+  subsec('3.2', 'Stack tecnica recomendada');
+  asciiTable(['COMPONENTE', 'FERRAMENTA', 'CUSTO', 'FAM'], [0.28, 0.40, 0.16, 0.16],
+    D.stack_recomendada.map(s => [s.componente, s.ferramenta, s.custo_estimado, s.familiar ? 'sim' : 'nao']));
+  subsec('3.3', 'Riscos fundamentais');
+  D.riscos_fundamentais.forEach((r, i) => {
+    need(18);
+    setF(MONO, 'bold', 9.5, INK);
+    const head = `[R-${i + 1}] ${r.titulo}  `;
+    doc.text(head, M.left, y);
+    const hw = doc.getTextWidth(head);
+    setF(MONO, 'bold', 9.5, sevColor(r.severidade));
+    doc.text(`<${sevLabel(r.severidade)}>`, M.left + hw, y);
+    y += 5;
+    para(r.descricao, { indent: 6, gap: LH * 0.3 });
+    para(`> Mitigacao: ${r.mitigacao}`, { indent: 6, color: ACCENT });
   });
 
-  y += 5; sectionTitle('08', 'Conclusao');
-  paragraph(`${nome} esta classificada como "${D.score_label}". ${D.score_narrativa}`); y += 1;
-  paragraph(`A acao imediata recomendada e: ${D.proximo_passo}`); y += 1;
-  paragraph('Este diagnostico e seu ativo tecnico permanente. Use o arquivo .MD exportavel separadamente em qualquer assistente de IA para aprofundar qualquer ponto deste documento e receber respostas cirurgicas sobre sua solucao.');
+  section('4', 'Projecao financeira');
+  para(`Modelo: ${D.projecao_financeira.modelo_sugerido}`, {});
+  para(`Ticket por cliente: ${formatBRL(D.projecao_financeira.ticket_medio_sugerido)}`, { gap: LH });
+  const pf = D.projecao_financeira;
+  asciiTable(['CENARIO', 'USERS', 'RECEITA/MES', 'CUSTO/MES', 'MARGEM'], [0.26, 0.16, 0.22, 0.20, 0.16],
+    [
+      ['conservador', pf.cenario_conservador.usuarios.toString(), formatBRL(pf.cenario_conservador.receita_mensal), formatBRL(pf.cenario_conservador.custo_infra), pf.cenario_conservador.margem + '%'],
+      ['realista', pf.cenario_realista.usuarios.toString(), formatBRL(pf.cenario_realista.receita_mensal), formatBRL(pf.cenario_realista.custo_infra), pf.cenario_realista.margem + '%'],
+      ['otimista', pf.cenario_otimista.usuarios.toString(), formatBRL(pf.cenario_otimista.receita_mensal), formatBRL(pf.cenario_otimista.custo_infra), pf.cenario_otimista.margem + '%']
+    ]);
 
-  const totalPages = doc.internal.getNumberOfPages();
-  for (let i = 2; i <= totalPages; i++) {
-    doc.setPage(i);
-    doc.setTextColor(GRAY_META[0], GRAY_META[1], GRAY_META[2]); doc.setFontSize(7);
-    doc.text(`${i - 1} / ${totalPages - 1}`, 105, 283, { align: 'center' });
-    doc.setDrawColor(CYAN_INK[0], CYAN_INK[1], CYAN_INK[2]); doc.setLineWidth(0.15); doc.line(M.left, 280, M.right, 280);
+  section('5', 'Roadmap');
+  D.roadmap.forEach((f, i) => {
+    subsec(`5.${i + 1}`, `${f.titulo} [${f.duracao}]`);
+    f.objetivos.forEach(o => para(`* ${o}`, { indent: 4, gap: LH * 0.2 }));
+    para(`=> Entregavel: ${f.entregavel}`, { indent: 4, color: ACCENT, gap: LH });
+  });
+
+  section('6', 'Plano de execucao');
+  D.proximos_passos_fila.forEach(p => {
+    need(16);
+    setF(MONO, 'bold', 9.5, INK);
+    doc.text(`STEP ${String(p.ordem).padStart(2, '0')}: ${p.titulo}`, M.left, y); y += 5;
+    para(p.descricao, { indent: 6, gap: LH * 0.3 });
+    setF(MONO, 'bold', 8.5, ACCENT); doc.text('[OK quando]', M.left + 6, y);
+    const ow = doc.getTextWidth('[OK quando] ');
+    setF(MONO, 'normal', 9, MUTE);
+    const okLines = doc.splitTextToSize(p.criterio_conclusao, CW - 6 - ow);
+    okLines.forEach((l, idx) => { if (idx > 0) { need(LH); } doc.text(l, M.left + 6 + ow, y); if (idx < okLines.length - 1) y += LH; });
+    y += LH + LH * 0.7;
+  });
+
+  section('7', 'Conclusao');
+  para(`${nome} classificada como "${D.score_label}". ${D.score_narrativa}`);
+  para(`Acao imediata: ${D.proximo_passo}`);
+  para('Este documento e um ativo tecnico permanente. Exporte o Markdown e anexe a qualquer assistente de IA para aprofundamento.', { color: MUTE });
+
+  function asciiTable(headers, widths, rows) {
+    const cw = widths.map(w => w * CW);
+    const lh = 4.3;
+    need(16);
+    doc.setDrawColor(...NEON); doc.setLineWidth(0.6); doc.line(M.left, y, M.right, y); y += 4;
+    setF(MONO, 'bold', 8, INK);
+    let cx = M.left; headers.forEach((h, i) => { doc.text(h, cx + 1.5, y); cx += cw[i]; }); y += 1.5;
+    doc.setDrawColor(...INK); doc.setLineWidth(0.25); doc.line(M.left, y, M.right, y); y += 4;
+    setF(MONO, 'normal', 8, BODY);
+    rows.forEach(row => {
+      const cells = row.map((c, i) => doc.splitTextToSize(String(c), cw[i] - 3));
+      const maxL = Math.max(...cells.map(l => l.length));
+      const rh = maxL * lh;
+      need(rh + 2);
+      cx = M.left; cells.forEach((lines, i) => { lines.forEach((l, li) => doc.text(l, cx + 1.5, y + li * lh)); cx += cw[i]; });
+      y += rh + 1.5;
+    });
+    doc.setDrawColor(...INK); doc.setLineWidth(0.25); doc.line(M.left, y, M.right, y); y += 6;
   }
+
+  const tp = doc.internal.getNumberOfPages();
+  for (let i = 2; i <= tp; i++) { doc.setPage(i); footer(i - 1); }
   doc.save(`Diagnostico_${nome.replace(/\s+/g, '_')}_SteveArch.pdf`);
 }
+
+
+
+
 
 function exportMD() {
   if (!D) return;

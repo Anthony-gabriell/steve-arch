@@ -128,6 +128,7 @@ function renderDashboard(data, onboarding) {
   renderFin(data);
   renderRiscos(data);
   renderFila(data);
+  renderCronograma(data);
   hide('loadingState');
   show('dashboard', 'block');
 }
@@ -357,6 +358,78 @@ function exportMD() {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a'); a.href = url; a.download = `${nome.replace(/\s+/g, '-').toLowerCase()}-laudo-steve-arch.md`; a.click();
   URL.revokeObjectURL(url);
+}
+
+// CRONOGRAMA DE EXECUÇÃO
+function renderCronograma(data) {
+  if (!data.proximos_passos_fila || !data.proximos_passos_fila.length) {
+    const wrap = document.querySelector('.chat-cronograma-wrap');
+    if (wrap) wrap.style.gridTemplateColumns = '1fr';
+    const cw = document.querySelector('.cronograma-wrap');
+    if (cw) cw.style.display = 'none';
+    return;
+  }
+
+  const cacheKey = getCronogramaKey();
+  const saved = JSON.parse(localStorage.getItem(cacheKey) || '{}');
+
+  const list = document.getElementById('cronogramaList');
+  list.innerHTML = data.proximos_passos_fila.map((p, i) => {
+    const id = `step_${i}`;
+    const done = saved[id] === true;
+    return `
+      <div class="crono-item ${done ? 'done' : ''}" data-id="${id}" onclick="toggleCrono('${id}')" style="animation-delay: ${i * 0.06}s">
+        <div class="crono-checkbox">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none">
+            <path d="M5 12l5 5L20 7" stroke="#060809" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="crono-body">
+          <div class="crono-num">ETAPA ${String(p.ordem || i + 1).padStart(2, '0')}</div>
+          <div class="crono-title">${p.titulo}</div>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  updateCronogramaProgress();
+}
+
+function getCronogramaKey() {
+  const onboarding = JSON.parse(localStorage.getItem('steveOnboarding') || '{}');
+  return 'steveCronograma_' + getInputHash(onboarding);
+}
+
+function toggleCrono(id) {
+  const cacheKey = getCronogramaKey();
+  const saved = JSON.parse(localStorage.getItem(cacheKey) || '{}');
+  saved[id] = !saved[id];
+  localStorage.setItem(cacheKey, JSON.stringify(saved));
+
+  const item = document.querySelector(`.crono-item[data-id="${id}"]`);
+  if (item) item.classList.toggle('done');
+
+  updateCronogramaProgress();
+}
+
+function updateCronogramaProgress() {
+  const items = document.querySelectorAll('.crono-item');
+  const done = document.querySelectorAll('.crono-item.done').length;
+  const total = items.length;
+  const pct = total ? (done / total * 100) : 0;
+
+  const progressEl = document.getElementById('cronogramaProgress');
+  const barEl = document.getElementById('cronogramaBar');
+
+  if (progressEl) progressEl.textContent = `${done} / ${total}`;
+  if (barEl) barEl.style.width = pct + '%';
+}
+
+function resetCronograma() {
+  const cacheKey = getCronogramaKey();
+  localStorage.removeItem(cacheKey);
+  document.querySelectorAll('.crono-item').forEach(el => el.classList.remove('done'));
+  updateCronogramaProgress();
 }
 
 async function init() {

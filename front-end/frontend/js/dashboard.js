@@ -141,7 +141,6 @@ function exportPDF() {
   const nome = (onboarding.nomeSolucao || 'Solucao').trim();
   const area = AREA_LABELS[onboarding.step1] || '';
   const hoje = new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' });
-  const parseWeeks = (dur) => { const n = (dur.match(/\d+/g) || ['4']).map(Number); return n.reduce((a,b)=>a+b,0)/n.length; };
   const sevLabel = (s) => ({ alta:'CRITICO', media:'ATENCAO', baixa:'OBSERVAR' })[s] || 'OBSERVAR';
 
   const M = { left: 24, right: 186, top: 26, bottom: 266 };
@@ -157,6 +156,17 @@ function exportPDF() {
 
   const setF = (font, style, size, color) => { doc.setFont(font, style); doc.setFontSize(size); doc.setTextColor(...color); };
   const sevColor = s => ({ alta: RED, media: AMBER, baixa: GREEN })[s] || GREEN;
+  const parseWeeks = (dur) => { const n = (dur.match(/\d+/g) || ['4']).map(Number); return n.reduce((a,b)=>a+b,0)/n.length; };
+
+  // Maturidade arquitetural derivada do score_label (sem alterar backend)
+  const MATURITY = {
+    'Precisa de base sólida': { n: 1, nome: 'Fundacao' },
+    'Boa base, ajustes críticos': { n: 2, nome: 'Estruturacao' },
+    'Pronto para crescer': { n: 3, nome: 'Escala' },
+    'Arquitetura sólida': { n: 4, nome: 'Maturidade' }
+  };
+  const mat = MATURITY[D.score_label] || { n: 1, nome: 'Fundacao' };
+  const maturidadeStr = `Nivel ${mat.n} de 4 · ${mat.nome}`;
 
   function runhead() {
     setF(MONO, 'normal', 8, MUTE);
@@ -205,14 +215,12 @@ function exportPDF() {
   setF(MONO, 'bold', 9, NEON); doc.text('STEVE ARCH', 28, 42, { charSpace: 2 });
   setF(MONO, 'normal', 8, [140, 148, 144]); doc.text('ENGENHARIA DE SOFTWARE', 28, 48, { charSpace: 1 });
 
-  setF(MONO, 'normal', 9, [120, 128, 124]);
-
   setF(MONO, 'bold', 30, [255, 255, 255]);
   const nameLines = doc.splitTextToSize(nome.toUpperCase(), 150);
   let cy = 130; nameLines.forEach(l => { doc.text(l, 28, cy); cy += 13; });
   doc.setDrawColor(...NEON); doc.setLineWidth(1); doc.line(28, cy - 4, 28 + 22, cy - 4);
   cy += 4;
-  setF(MONO, 'normal', 11, NEON); doc.text(area, 28, cy); cy += 14;
+  setF(MONO, 'normal', 11, NEON); doc.text(area, 28, cy); cy += 12;
 
   setF(MONO, 'normal', 7.5, [100, 108, 104]);
   doc.text('Este documento e um ativo tecnico.', 28, 268, { charSpace: 0.3 });
@@ -221,7 +229,7 @@ function exportPDF() {
   newPage();
   setF(MONO, 'normal', 9, BODY);
   const metaL = ['Steve Arch Engineering', 'Categoria: Diagnostico Tecnico', 'Documento: DIAG-ARCH-001', `Emitido: ${hoje}`];
-  const metaR = ['Solucao: ' + nome, 'Dominio: ' + area, 'Status: ' + D.score_label, 'Versao: 1.0'];
+  const metaR = ['Solucao: ' + nome, 'Dominio: ' + area, 'Maturidade: ' + maturidadeStr, 'Versao: 1.0'];
   let mh = y;
   metaL.forEach((t, i) => doc.text(t, M.left, mh + i * 5));
   metaR.forEach((t, i) => { const w = doc.getTextWidth(t); doc.text(t, M.right - w, mh + i * 5); });
@@ -297,6 +305,9 @@ function exportPDF() {
     ]);
 
   section('5', 'Roadmap');
+  // Gantt sutil monospace (eixo X = SEMANAS, so numeros)
+  ganttRFC(D.roadmap);
+  y += 2;
   D.roadmap.forEach((f, i) => {
     subsec(`5.${i + 1}`, `${f.titulo} [${f.duracao}]`);
     f.objetivos.forEach(o => para(`* ${o}`, { indent: 4, gap: LH * 0.2 }));
@@ -318,9 +329,42 @@ function exportPDF() {
   });
 
   section('7', 'Conclusao');
-  para(`${nome} classificada como "${D.score_label}". ${D.score_narrativa}`);
+  para(`${nome} apresenta maturidade arquitetural ${maturidadeStr}. ${D.score_narrativa}`);
   para(`Acao imediata: ${D.proximo_passo}`);
-  para('Este documento e um ativo tecnico permanente. Exporte o Markdown e anexe a qualquer assistente de IA para aprofundamento.', { color: MUTE });
+  para('Este documento e um ativo tecnico. Exporte o Markdown e anexe a qualquer assistente de IA para aprofundamento.', { color: MUTE });
+
+  function ganttRFC(roadmap) {
+    const weeks = roadmap.map(f => parseWeeks(f.duracao));
+    const total = weeks.reduce((a, b) => a + b, 0);
+    const labelW = 7, trackX = M.left + labelW, trackW = CW - labelW, rowH = 9;
+    const chartH = roadmap.length * rowH + 12;
+    need(chartH + 6);
+    const baseY = y;
+    const startY = baseY + 2, endY = baseY + roadmap.length * rowH + 2;
+    let gx = trackX, acc = 0;
+    setF(MONO, 'normal', 6.5, MUTE);
+    doc.setDrawColor(...HAIR); doc.setLineWidth(0.2); doc.setLineDashPattern([0.6, 1.4], 0);
+    doc.line(trackX, startY - 1, trackX, endY); doc.setLineDashPattern([], 0);
+    doc.text('0', trackX, endY + 4, { align: 'center' });
+    roadmap.forEach((f, i) => {
+      const segW = (weeks[i] / total) * trackW; const tickX = gx + segW;
+      doc.setDrawColor(...HAIR); doc.setLineWidth(0.2); doc.setLineDashPattern([0.6, 1.4], 0);
+      doc.line(tickX, startY - 1, tickX, endY); doc.setLineDashPattern([], 0);
+      acc += weeks[i]; doc.text(String(acc), tickX, endY + 4, { align: 'center' }); gx = tickX;
+    });
+    setF(MONO, 'normal', 6.5, MUTE);
+    doc.text('SEMANAS', M.left + labelW + trackW / 2, endY + 9, { align: 'center', charSpace: 1.5 });
+    let bx = trackX;
+    roadmap.forEach((f, i) => {
+      const segW = (weeks[i] / total) * trackW, barY = baseY + i * rowH + 2, barH = 4.5;
+      setF(MONO, 'bold', 7.5, ACCENT); doc.text(String(i + 1), M.left, barY + 3.6);
+      doc.setFillColor(238, 243, 241); doc.rect(trackX, barY, trackW, barH, 'F');
+      doc.setFillColor(...NEON); doc.rect(bx, barY, segW, barH, 'F');
+      doc.setFillColor(...ACCENT); doc.rect(bx, barY, 1, barH, 'F');
+      bx += segW;
+    });
+    y = endY + 13;
+  }
 
   function asciiTable(headers, widths, rows) {
     const cw = widths.map(w => w * CW);

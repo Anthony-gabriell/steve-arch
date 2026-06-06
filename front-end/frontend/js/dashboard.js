@@ -1,4 +1,3 @@
-// Lógica do dashboard de diagnóstico
 let D = null;
 
 const SCORE_LEVELS = [
@@ -134,266 +133,495 @@ function renderDashboard(data, onboarding) {
 }
 
 function exportPDF() {
-  if (!D) return;
   const { jsPDF } = window.jspdf;
-  const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-  const onboarding = JSON.parse(localStorage.getItem('steveOnboarding') || '{}');
-  const nome = (onboarding.nomeSolucao || 'Solucao').trim();
-  const area = AREA_LABELS[onboarding.step1] || '';
-  const hoje = new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' });
-  const sevLabel = (s) => ({ alta:'CRITICO', media:'ATENCAO', baixa:'OBSERVAR' })[s] || 'OBSERVAR';
 
+  function calcMaturidade(score, label) {
+    const FAIXAS = {
+      "Precisa de base sólida":     { categoria: "Fundacao",     min: 1, max: 2  },
+      "Boa base, ajustes críticos": { categoria: "Estruturacao", min: 3, max: 5  },
+      "Pronto para crescer":        { categoria: "Escala",       min: 6, max: 8  },
+      "Arquitetura sólida":         { categoria: "Maturidade",   min: 9, max: 10 },
+    };
+    const faixa = FAIXAS[label] || FAIXAS["Precisa de base sólida"];
+    const bruto = Math.round((Number(score) || 0) / 10);
+    const nivel = Math.max(faixa.min, Math.min(faixa.max, bruto));
+    return { nivel, categoria: faixa.categoria, label, texto: `Nivel ${nivel} de 10 \u00b7 ${faixa.categoria}` };
+  }
+
+  function parseSemanas(str) {
+    if (!str) return 4;
+    const matches = String(str).match(/(\d+)/g);
+    if (!matches) return 4;
+    const nums = matches.map(Number);
+    if (nums.length >= 2) return Math.round((nums[0] + nums[1]) / 2);
+    return nums[0];
+  }
+
+  function severidadeTag(sev) {
+    const s = String(sev || "").toLowerCase();
+    if (s === "alta" || s === "critica" || s === "critico") return { tag: "<CRITICO>", cor: [196, 52, 70] };
+    if (s === "media" || s === "medio") return { tag: "<ATENCAO>", cor: [176, 120, 22] };
+    return { tag: "<OBSERVAR>", cor: [13, 110, 82] };
+  }
+
+  function dataExtensoPtBr(d) {
+    const meses = ["janeiro","fevereiro","marco","abril","maio","junho","julho","agosto","setembro","outubro","novembro","dezembro"];
+    return `${String(d.getDate()).padStart(2, "0")} de ${meses[d.getMonth()]} de ${d.getFullYear()}`;
+  }
+
+  const onboarding = JSON.parse(localStorage.getItem("steveOnboarding") || "{}");
+  const doc = new jsPDF({ unit: "mm", format: "a4" });
+
+  const PAGE_W = 210, PAGE_H = 297;
   const M = { left: 24, right: 186, top: 26, bottom: 266 };
   const CW = M.right - M.left;
   const LH = 4.6;
-  let y = M.top;
 
-  const INK = [28, 32, 36], BODY = [55, 60, 64], MUTE = [120, 126, 130], HAIR = [210, 215, 218];
-  const ACCENT = [13, 110, 82];
-  const NEON = [46, 232, 176];
-  const RED = [196, 52, 70], AMBER = [176, 120, 22], GREEN = [13, 110, 82];
-  const MONO = 'courier';
+  const INK = [28, 32, 36], BODY = [55, 60, 64], MUTE = [120, 126, 130];
+  const HAIR = [210, 215, 218], ACCENT = [13, 110, 82], NEON = [46, 232, 176];
+  const COVER_BG = [9, 12, 11];
 
-  const setF = (font, style, size, color) => { doc.setFont(font, style); doc.setFontSize(size); doc.setTextColor(...color); };
-  const sevColor = s => ({ alta: RED, media: AMBER, baixa: GREEN })[s] || GREEN;
-  const parseWeeks = (dur) => { const n = (dur.match(/\d+/g) || ['4']).map(Number); return n.reduce((a,b)=>a+b,0)/n.length; };
+  const MAT = calcMaturidade(D.score_escalabilidade, D.score_label);
+  const runningHeaderText = `STEVE ARCH DIAG-ARCH/${(onboarding.nomeSolucao || "DOC").toUpperCase()}`;
 
-  // Maturidade arquitetural derivada do score_label (sem alterar backend)
-  const MATURITY = {
-    'Precisa de base sólida': { n: 1, nome: 'Fundacao' },
-    'Boa base, ajustes críticos': { n: 2, nome: 'Estruturacao' },
-    'Pronto para crescer': { n: 3, nome: 'Escala' },
-    'Arquitetura sólida': { n: 4, nome: 'Maturidade' }
-  };
-  const mat = MATURITY[D.score_label] || { n: 1, nome: 'Fundacao' };
-  const maturidadeStr = `Nivel ${mat.n} de 4 · ${mat.nome}`;
+  let y = 0, page = 0;
 
-  function runhead() {
-    setF(MONO, 'normal', 8, MUTE);
-    doc.text('STEVE ARCH', M.left, 15);
-    doc.text(`DIAG-ARCH/${nome.toUpperCase()}`, M.right, 15, { align: 'right' });
-    doc.setDrawColor(...NEON); doc.setLineWidth(0.8); doc.line(M.left, 17.5, M.left + 16, 17.5);
-    doc.setDrawColor(...HAIR); doc.setLineWidth(0.2); doc.line(M.left + 18, 17.5, M.right, 17.5);
+  function setFont(style = "normal", size = 9) { doc.setFont("courier", style); doc.setFontSize(size); }
+  function setColor(rgb) { doc.setTextColor(rgb[0], rgb[1], rgb[2]); }
+  function setDrawColor(rgb) { doc.setDrawColor(rgb[0], rgb[1], rgb[2]); }
+  function setFillColor(rgb) { doc.setFillColor(rgb[0], rgb[1], rgb[2]); }
+
+  function fileteNeon(x, yPos, len = 6) {
+    setDrawColor(NEON); doc.setLineWidth(0.6); doc.line(x, yPos, x + len, yPos); doc.setLineWidth(0.2);
   }
-  function footer(n) {
-    doc.setDrawColor(...NEON); doc.setLineWidth(0.8); doc.line(M.left, 271, M.left + 16, 271);
-    doc.setDrawColor(...HAIR); doc.setLineWidth(0.2); doc.line(M.left + 18, 271, M.right, 271);
-    setF(MONO, 'normal', 8, MUTE);
-    doc.text('Steve Arch', M.left, 276);
-    doc.text(`[Pagina ${n}]`, M.right, 276, { align: 'right' });
+
+  function hr(yPos, withFilete = true) {
+    if (withFilete) fileteNeon(M.left, yPos, 6);
+    setDrawColor(HAIR); doc.setLineWidth(0.2);
+    doc.line(M.left + (withFilete ? 7 : 0), yPos, M.right, yPos);
   }
-  function newPage() { doc.addPage(); runhead(); y = M.top; }
+
+  function cabecalho() {
+    fileteNeon(M.left, 18, 6);
+    setDrawColor(HAIR); doc.setLineWidth(0.2); doc.line(M.left + 7, 18, M.right, 18);
+    setFont("bold", 8.5); setColor(INK);
+    doc.text(runningHeaderText, M.left + 7, 15);
+  }
+
+  function rodape() {
+    if (page < 1) return;
+    setDrawColor(HAIR); doc.setLineWidth(0.2); doc.line(M.left, M.bottom + 6, M.right, M.bottom + 6);
+    setFont("normal", 7.5); setColor(MUTE);
+    doc.text("Steve Arch", M.left, M.bottom + 10);
+    const pageLabel = `[Pagina ${page}]`;
+    doc.text(pageLabel, M.right - doc.getTextWidth(pageLabel), M.bottom + 10);
+  }
+
+  function newPage() { rodape(); doc.addPage(); page += 1; cabecalho(); y = M.top + 4; }
   function need(h) { if (y + h > M.bottom) newPage(); }
 
-  function para(text, { size = 9.5, color = BODY, indent = 0, gap = LH * 0.7 } = {}) {
-    if (!text) return;
-    setF(MONO, 'normal', size, color);
-    doc.splitTextToSize(String(text), CW - indent).forEach(l => { need(LH); doc.text(l, M.left + indent, y); y += LH; });
-    y += gap;
-  }
-  function section(num, title) {
-    need(15); y += 3;
-    setF(MONO, 'bold', 11, INK);
-    doc.text(`${num}.  ${title}`, M.left, y);
-    y += 2.5;
-    doc.setDrawColor(...NEON); doc.setLineWidth(0.9); doc.line(M.left, y, M.left + 20, y);
-    doc.setDrawColor(...INK); doc.setLineWidth(0.3); doc.line(M.left + 22, y, M.right, y);
-    y += 6;
-  }
-  function subsec(num, title) {
-    need(9); y += 1.5;
-    setF(MONO, 'bold', 9.5, ACCENT);
-    doc.text(`${num}  ${title}`, M.left, y); y += 5;
+  function tituloSecao(num, txt) {
+    need(14); y += 4;
+    fileteNeon(M.left, y - 2, 6);
+    setDrawColor(HAIR); doc.setLineWidth(0.2); doc.line(M.left + 7, y - 2, M.right, y - 2);
+    setFont("bold", 11); setColor(INK);
+    doc.text(`${num}. ${txt}`, M.left, y + 3);
+    y += 8;
   }
 
-  // ─── CAPA ───
-  doc.setFillColor(9, 12, 11); doc.rect(0, 0, 210, 297, 'F');
-  doc.setDrawColor(...NEON); doc.setLineWidth(1.2);
-  doc.line(20, 20, 36, 20); doc.line(20, 20, 20, 36);
-  doc.line(190, 277, 174, 277); doc.line(190, 277, 190, 261);
+  function subtitulo(txt) {
+    need(8); y += 2;
+    setFont("bold", 9.5); setColor(INK);
+    doc.text(txt, M.left, y);
+    y += LH + 1;
+  }
 
-  setF(MONO, 'bold', 9, NEON); doc.text('STEVE ARCH', 28, 42, { charSpace: 2 });
-  setF(MONO, 'normal', 8, [140, 148, 144]); doc.text('ENGENHARIA DE SOFTWARE', 28, 48, { charSpace: 1 });
+  function paragrafo(txt) {
+    setFont("normal", 9); setColor(BODY);
+    const linhas = doc.splitTextToSize(txt, CW);
+    for (const linha of linhas) { need(LH); doc.text(linha, M.left, y); y += LH; }
+  }
 
-  setF(MONO, 'bold', 30, [255, 255, 255]);
-  const nameLines = doc.splitTextToSize(nome.toUpperCase(), 150);
-  let cy = 130; nameLines.forEach(l => { doc.text(l, 28, cy); cy += 13; });
-  doc.setDrawColor(...NEON); doc.setLineWidth(1); doc.line(28, cy - 4, 28 + 22, cy - 4);
-  cy += 4;
-  setF(MONO, 'normal', 11, NEON); doc.text(area, 28, cy); cy += 12;
+  function paragrafoMultiplo(txt) {
+    const partes = String(txt || "").split(/\n\n+/);
+    for (let i = 0; i < partes.length; i++) { paragrafo(partes[i].trim()); if (i < partes.length - 1) y += LH * 0.4; }
+  }
 
-  setF(MONO, 'normal', 7.5, [100, 108, 104]);
-  doc.text('Este documento e um ativo tecnico.', 28, 268, { charSpace: 0.3 });
+  function bulletItem(txt) {
+    setFont("normal", 9); setColor(BODY);
+    const linhas = doc.splitTextToSize(txt, CW - 6);
+    for (let i = 0; i < linhas.length; i++) {
+      need(LH);
+      doc.text(i === 0 ? "*" : " ", M.left, y);
+      doc.text(linhas[i], M.left + 4, y);
+      y += LH;
+    }
+  }
 
-  // ─── PAGINA 1 ───
-  newPage();
-  setF(MONO, 'normal', 9, BODY);
-  const metaL = ['Steve Arch Engineering', 'Categoria: Diagnostico Tecnico', 'Documento: DIAG-ARCH-001', `Emitido: ${hoje}`];
-  const metaR = ['Solucao: ' + nome, 'Dominio: ' + area, 'Maturidade: ' + maturidadeStr, 'Versao: 1.0'];
-  let mh = y;
-  metaL.forEach((t, i) => doc.text(t, M.left, mh + i * 5));
-  metaR.forEach((t, i) => { const w = doc.getTextWidth(t); doc.text(t, M.right - w, mh + i * 5); });
-  y = mh + metaL.length * 5 + 4;
-  doc.setDrawColor(...NEON); doc.setLineWidth(0.8); doc.line(M.left, y, M.left + 20, y);
-  doc.setDrawColor(...INK); doc.setLineWidth(0.4); doc.line(M.left + 22, y, M.right, y);
-  y += 12;
+  function severidadeInline(xPos, yPos, sev) {
+    const { tag, cor } = severidadeTag(sev);
+    setFont("bold", 9); setColor(cor);
+    doc.text(tag, xPos, yPos);
+    setColor(BODY);
+  }
 
-  setF(MONO, 'bold', 15, INK);
-  const tl = doc.splitTextToSize(`Diagnostico de Escalabilidade: ${nome}`, CW);
-  tl.forEach(l => { const w = doc.getTextWidth(l); doc.text(l, M.left + (CW - w) / 2, y); y += 7; });
-  y += 6;
+  function renderCapa() {
+    page = 0;
+    setFillColor(COVER_BG); doc.rect(0, 0, PAGE_W, PAGE_H, "F");
+    setDrawColor(NEON); doc.setLineWidth(0.8);
+    const tick = 10;
+    doc.line(M.left, M.top, M.left + tick, M.top);
+    doc.line(M.left, M.top, M.left, M.top + tick);
+    doc.line(M.right - tick, M.top, M.right, M.top);
+    doc.line(M.right, M.top, M.right, M.top + tick);
+    doc.line(M.left, M.bottom + 6, M.left + tick, M.bottom + 6);
+    doc.line(M.left, M.bottom + 6 - tick, M.left, M.bottom + 6);
+    doc.line(M.right - tick, M.bottom + 6, M.right, M.bottom + 6);
+    doc.line(M.right, M.bottom + 6 - tick, M.right, M.bottom + 6);
+    doc.setLineWidth(0.2);
+    setFont("bold", 22); setColor(NEON);
+    const marca = "STEVE ARCH";
+    doc.text(marca, (PAGE_W - doc.getTextWidth(marca)) / 2, 50);
+    setFont("normal", 10); setColor([200, 210, 205]);
+    const sub = "ENGENHARIA DE SOFTWARE";
+    doc.text(sub, (PAGE_W - doc.getTextWidth(sub)) / 2, 57);
+    const nome = (onboarding.nomeSolucao || "Solucao").toUpperCase();
+    setFont("bold", 32); setColor([240, 245, 242]);
+    doc.text(nome, (PAGE_W - doc.getTextWidth(nome)) / 2, 160);
+    const dominio = AREA_LABELS[onboarding.step1] || "Tecnologia";
+    setFont("normal", 11); setColor([170, 180, 175]);
+    doc.text(dominio, (PAGE_W - doc.getTextWidth(dominio)) / 2, 170);
+    setFont("normal", 9); setColor([170, 180, 175]);
+    const rod = "Este documento e um ativo tecnico.";
+    doc.text(rod, (PAGE_W - doc.getTextWidth(rod)) / 2, M.bottom);
+  }
 
-  setF(MONO, 'bold', 9.5, INK); doc.text('Resumo deste documento', M.left, y); y += 5.5;
-  para(D.resumo_executivo);
-  y += 2;
+  function renderPagina1Corpo() {
+    doc.addPage(); page = 1; cabecalho(); y = M.top + 4;
+    const colW = (CW - 8) / 2;
+    const xCol1 = M.left;
+    const xCol2 = M.left + colW + 8;
+    const linhasMeta = [
+      { label: "Categoria:",  valor: "Diagnostico Tecnico", col: 1 },
+      { label: "Documento:",  valor: "DIAG-ARCH-001",       col: 1 },
+      { label: "Emitido:",    valor: dataExtensoPtBr(new Date()), col: 1 },
+      { label: "Solucao:",    valor: onboarding.nomeSolucao || "Solucao", col: 2 },
+      { label: "Dominio:",    valor: AREA_LABELS[onboarding.step1] || "Tecnologia", col: 2 },
+      { label: "Maturidade:", valor: MAT.texto, col: 2 },
+      { label: "Versao:",     valor: "1.0", col: 1 },
+    ];
+    const col1 = linhasMeta.filter(l => l.col === 1);
+    const col2 = linhasMeta.filter(l => l.col === 2);
+    function escreveLinhaMeta(x, yPos, label, valor) {
+      setFont("normal", 8.5); setColor(MUTE);
+      doc.text(label, x, yPos);
+      const wLabel = doc.getTextWidth(label);
+      setColor(INK);
+      doc.text(valor, x + wLabel + 2, yPos);
+    }
+    let yMeta = y;
+    const maxLinhas = Math.max(col1.length, col2.length);
+    for (let i = 0; i < maxLinhas; i++) {
+      if (col1[i]) escreveLinhaMeta(xCol1, yMeta, col1[i].label, col1[i].valor);
+      if (col2[i]) escreveLinhaMeta(xCol2, yMeta, col2[i].label, col2[i].valor);
+      yMeta += LH;
+    }
+    y = yMeta + 2;
+    hr(y); y += 5;
+    setFont("bold", 13); setColor(INK);
+    const tit = `Diagnostico de Escalabilidade: ${onboarding.nomeSolucao || "Solucao"}`;
+    doc.text(tit, (PAGE_W - doc.getTextWidth(tit)) / 2, y + 3);
+    y += 11;
+    subtitulo("Resumo deste documento");
+    paragrafo(D.resumo_executivo || "");
+    y += 2;
+    subtitulo("Indice");
+    const indice = ["1. Problema","2. Solucao proposta","3. Diagnostico tecnico","4. Projecao financeira","5. Roadmap","6. Plano de execucao","7. Conclusao"];
+    setFont("normal", 9); setColor(BODY);
+    for (const item of indice) { need(LH); doc.text(item, M.left, y); y += LH; }
+  }
 
-  setF(MONO, 'bold', 9.5, INK); doc.text('Indice', M.left, y); y += 5.5;
-  const toc = ['1. Problema', '2. Solucao proposta', '3. Diagnostico tecnico', '4. Projecao financeira', '5. Roadmap', '6. Plano de execucao', '7. Conclusao'];
-  setF(MONO, 'normal', 9, BODY);
-  toc.forEach(t => { need(LH); doc.text(t, M.left + 4, y); y += LH; });
-  y += 2;
+  function renderProblema() {
+    tituloSecao("1", "Problema");
+    setFont("italic", 9); setColor(MUTE);
+    paragrafo(`Declaracao do usuario: "${onboarding.step2 || ""}"`);
+    y += 1;
+    paragrafoMultiplo(D.problema_detalhado || "");
+  }
 
-  // ─── SEÇÕES ───
-  section('1', 'Problema');
-  para(`Declaracao do usuario: "${onboarding.step2}"`, { color: MUTE });
-  D.problema_detalhado.split(/\n\n+/).forEach(p => para(p.trim()));
+  function renderSolucao() {
+    tituloSecao("2", "Solucao proposta");
+    setFont("italic", 9); setColor(MUTE);
+    paragrafo(`Declaracao do usuario: "${onboarding.step3 || ""}"`);
+    y += 1;
+    paragrafoMultiplo(D.solucao_detalhada || "");
+  }
 
-  section('2', 'Solucao proposta');
-  para(`Declaracao do usuario: "${onboarding.step3}"`, { color: MUTE });
-  D.solucao_detalhada.split(/\n\n+/).forEach(p => para(p.trim()));
-
-  section('3', 'Diagnostico tecnico');
-  subsec('3.1', 'Gargalos de escalabilidade');
-  D.gargalos.forEach((g, i) => {
-    need(16);
-    setF(MONO, 'bold', 9.5, INK);
-    const head = `[G-${i + 1}] ${g.titulo}  `;
-    doc.text(head, M.left, y);
-    const hw = doc.getTextWidth(head);
-    setF(MONO, 'bold', 9.5, sevColor(g.severidade));
-    doc.text(`<${sevLabel(g.severidade)}>`, M.left + hw, y);
-    y += 5;
-    para(g.descricao, { indent: 6, gap: LH * 0.3 });
-    para(`Ponto de inflexao: ${g.quando_aparece}`, { indent: 6, color: MUTE });
-  });
-  subsec('3.2', 'Stack tecnica recomendada');
-  asciiTable(['COMPONENTE', 'FERRAMENTA', 'CUSTO', 'FAM'], [0.28, 0.40, 0.16, 0.16],
-    D.stack_recomendada.map(s => [s.componente, s.ferramenta, s.custo_estimado, s.familiar ? 'sim' : 'nao']));
-  subsec('3.3', 'Riscos fundamentais');
-  D.riscos_fundamentais.forEach((r, i) => {
-    need(18);
-    setF(MONO, 'bold', 9.5, INK);
-    const head = `[R-${i + 1}] ${r.titulo}  `;
-    doc.text(head, M.left, y);
-    const hw = doc.getTextWidth(head);
-    setF(MONO, 'bold', 9.5, sevColor(r.severidade));
-    doc.text(`<${sevLabel(r.severidade)}>`, M.left + hw, y);
-    y += 5;
-    para(r.descricao, { indent: 6, gap: LH * 0.3 });
-    para(`> Mitigacao: ${r.mitigacao}`, { indent: 6, color: ACCENT });
-  });
-
-  section('4', 'Projecao financeira');
-  para(`Modelo: ${D.projecao_financeira.modelo_sugerido}`, {});
-  para(`Ticket por cliente: ${formatBRL(D.projecao_financeira.ticket_medio_sugerido)}`, { gap: LH });
-  const pf = D.projecao_financeira;
-  asciiTable(['CENARIO', 'USERS', 'RECEITA/MES', 'CUSTO/MES', 'MARGEM'], [0.26, 0.16, 0.22, 0.20, 0.16],
-    [
-      ['conservador', pf.cenario_conservador.usuarios.toString(), formatBRL(pf.cenario_conservador.receita_mensal), formatBRL(pf.cenario_conservador.custo_infra), pf.cenario_conservador.margem + '%'],
-      ['realista', pf.cenario_realista.usuarios.toString(), formatBRL(pf.cenario_realista.receita_mensal), formatBRL(pf.cenario_realista.custo_infra), pf.cenario_realista.margem + '%'],
-      ['otimista', pf.cenario_otimista.usuarios.toString(), formatBRL(pf.cenario_otimista.receita_mensal), formatBRL(pf.cenario_otimista.custo_infra), pf.cenario_otimista.margem + '%']
-    ]);
-
-  section('5', 'Roadmap');
-  // Gantt sutil monospace (eixo X = SEMANAS, so numeros)
-  ganttRFC(D.roadmap);
-  y += 2;
-  D.roadmap.forEach((f, i) => {
-    subsec(`5.${i + 1}`, `${f.titulo} [${f.duracao}]`);
-    f.objetivos.forEach(o => para(`* ${o}`, { indent: 4, gap: LH * 0.2 }));
-    para(`=> Entregavel: ${f.entregavel}`, { indent: 4, color: ACCENT, gap: LH });
-  });
-
-  section('6', 'Plano de execucao');
-  D.proximos_passos_fila.forEach(p => {
-    need(16);
-    setF(MONO, 'bold', 9.5, INK);
-    doc.text(`STEP ${String(p.ordem).padStart(2, '0')}: ${p.titulo}`, M.left, y); y += 5;
-    para(p.descricao, { indent: 6, gap: LH * 0.3 });
-    setF(MONO, 'bold', 8.5, ACCENT); doc.text('[OK quando]', M.left + 6, y);
-    const ow = doc.getTextWidth('[OK quando] ');
-    setF(MONO, 'normal', 9, MUTE);
-    const okLines = doc.splitTextToSize(p.criterio_conclusao, CW - 6 - ow);
-    okLines.forEach((l, idx) => { if (idx > 0) { need(LH); } doc.text(l, M.left + 6 + ow, y); if (idx < okLines.length - 1) y += LH; });
-    y += LH + LH * 0.7;
-  });
-
-  section('7', 'Conclusao');
-  para(`${nome} apresenta maturidade arquitetural ${maturidadeStr}. ${D.score_narrativa}`);
-  para(`Acao imediata: ${D.proximo_passo}`);
-  para('Este documento e um ativo tecnico. Exporte o Markdown e anexe a qualquer assistente de IA para aprofundamento.', { color: MUTE });
-
-  function ganttRFC(roadmap) {
-    const weeks = roadmap.map(f => parseWeeks(f.duracao));
-    const total = weeks.reduce((a, b) => a + b, 0);
-    const labelW = 7, trackX = M.left + labelW, trackW = CW - labelW, rowH = 9;
-    const chartH = roadmap.length * rowH + 12;
-    need(chartH + 6);
-    const baseY = y;
-    const startY = baseY + 2, endY = baseY + roadmap.length * rowH + 2;
-    let gx = trackX, acc = 0;
-    setF(MONO, 'normal', 6.5, MUTE);
-    doc.setDrawColor(...HAIR); doc.setLineWidth(0.2); doc.setLineDashPattern([0.6, 1.4], 0);
-    doc.line(trackX, startY - 1, trackX, endY); doc.setLineDashPattern([], 0);
-    doc.text('0', trackX, endY + 4, { align: 'center' });
-    roadmap.forEach((f, i) => {
-      const segW = (weeks[i] / total) * trackW; const tickX = gx + segW;
-      doc.setDrawColor(...HAIR); doc.setLineWidth(0.2); doc.setLineDashPattern([0.6, 1.4], 0);
-      doc.line(tickX, startY - 1, tickX, endY); doc.setLineDashPattern([], 0);
-      acc += weeks[i]; doc.text(String(acc), tickX, endY + 4, { align: 'center' }); gx = tickX;
+  function renderDiagnostico() {
+    tituloSecao("3", "Diagnostico tecnico");
+    subtitulo("3.1 Gargalos de escalabilidade");
+    (D.gargalos || []).forEach((g, i) => {
+      need(LH * 4);
+      setFont("bold", 9); setColor(INK);
+      const tituloG = `[G-${i + 1}] ${g.titulo} `;
+      doc.text(tituloG, M.left, y);
+      severidadeInline(M.left + doc.getTextWidth(tituloG), y, g.severidade);
+      y += LH;
+      paragrafo(g.descricao || "");
+      if (g.quando_aparece) {
+        setFont("italic", 8.5); setColor(MUTE); need(LH);
+        doc.text(`Ponto de inflexao: ${g.quando_aparece}`, M.left, y); y += LH;
+      }
+      y += 1;
     });
-    setF(MONO, 'normal', 6.5, MUTE);
-    doc.text('SEMANAS', M.left + labelW + trackW / 2, endY + 9, { align: 'center', charSpace: 1.5 });
-    let bx = trackX;
-    roadmap.forEach((f, i) => {
-      const segW = (weeks[i] / total) * trackW, barY = baseY + i * rowH + 2, barH = 4.5;
-      setF(MONO, 'bold', 7.5, ACCENT); doc.text(String(i + 1), M.left, barY + 3.6);
-      doc.setFillColor(238, 243, 241); doc.rect(trackX, barY, trackW, barH, 'F');
-      doc.setFillColor(...NEON); doc.rect(bx, barY, segW, barH, 'F');
-      doc.setFillColor(...ACCENT); doc.rect(bx, barY, 1, barH, 'F');
-      bx += segW;
+    y += 1;
+    subtitulo("3.2 Stack tecnica recomendada");
+    renderTabelaStack(D.stack_recomendada || []);
+    y += 2;
+    subtitulo("3.3 Riscos fundamentais");
+    (D.riscos_fundamentais || []).forEach((r, i) => {
+      need(LH * 5);
+      setFont("bold", 9); setColor(INK);
+      const tituloR = `[R-${i + 1}] ${r.titulo} `;
+      doc.text(tituloR, M.left, y);
+      severidadeInline(M.left + doc.getTextWidth(tituloR), y, r.severidade);
+      y += LH;
+      paragrafo(r.descricao || "");
+      if (r.mitigacao) {
+        setFont("normal", 9); setColor(BODY);
+        const linhasMit = doc.splitTextToSize(`> Mitigacao: ${r.mitigacao}`, CW - 4);
+        for (const lm of linhasMit) { need(LH); doc.text(lm, M.left + 2, y); y += LH; }
+      }
+      y += 1;
     });
-    y = endY + 13;
   }
 
-  function asciiTable(headers, widths, rows) {
-    const cw = widths.map(w => w * CW);
-    const lh = 4.3;
-    need(16);
-    doc.setDrawColor(...NEON); doc.setLineWidth(0.6); doc.line(M.left, y, M.right, y); y += 4;
-    setF(MONO, 'bold', 8, INK);
-    let cx = M.left; headers.forEach((h, i) => { doc.text(h, cx + 1.5, y); cx += cw[i]; }); y += 1.5;
-    doc.setDrawColor(...INK); doc.setLineWidth(0.25); doc.line(M.left, y, M.right, y); y += 4;
-    setF(MONO, 'normal', 8, BODY);
-    rows.forEach(row => {
-      const cells = row.map((c, i) => doc.splitTextToSize(String(c), cw[i] - 3));
-      const maxL = Math.max(...cells.map(l => l.length));
-      const rh = maxL * lh;
-      need(rh + 2);
-      cx = M.left; cells.forEach((lines, i) => { lines.forEach((l, li) => doc.text(l, cx + 1.5, y + li * lh)); cx += cw[i]; });
-      y += rh + 1.5;
-    });
-    doc.setDrawColor(...INK); doc.setLineWidth(0.25); doc.line(M.left, y, M.right, y); y += 6;
+  function renderTabelaStack(stack) {
+    fileteNeon(M.left, y - 1, 6);
+    setDrawColor(HAIR); doc.line(M.left + 7, y - 1, M.right, y - 1);
+    setFont("bold", 8.5); setColor(INK);
+    const cols = { comp: 0, ferr: 55, custo: 115, fam: 150 };
+    doc.text("COMPONENTE", M.left + cols.comp, y + 4);
+    doc.text("FERRAMENTA", M.left + cols.ferr, y + 4);
+    doc.text("CUSTO", M.left + cols.custo, y + 4);
+    doc.text("FAM", M.left + cols.fam, y + 4);
+    y += 7;
+    setDrawColor(HAIR); doc.line(M.left, y - 2, M.right, y - 2);
+    setFont("normal", 8.5); setColor(BODY);
+    for (const item of stack) {
+      need(LH);
+      doc.text((item.componente || "").substring(0, 28), M.left + cols.comp, y);
+      doc.text((item.ferramenta || "").substring(0, 32), M.left + cols.ferr, y);
+      doc.text(item.custo_estimado || "R$ 0", M.left + cols.custo, y);
+      doc.text(item.familiar ? "sim" : "nao", M.left + cols.fam, y);
+      y += LH;
+    }
   }
 
-  const tp = doc.internal.getNumberOfPages();
-  for (let i = 2; i <= tp; i++) { doc.setPage(i); footer(i - 1); }
-  doc.save(`Diagnostico_${nome.replace(/\s+/g, '_')}_SteveArch.pdf`);
+  function renderProjecao() {
+    tituloSecao("4", "Projecao financeira");
+    const pf = D.projecao_financeira || {};
+    setFont("normal", 9); setColor(BODY);
+    if (pf.modelo_sugerido) paragrafo(`Modelo: ${pf.modelo_sugerido}`);
+    if (pf.ticket_medio_sugerido) paragrafo(`Ticket por cliente: ${formatBRL(pf.ticket_medio_sugerido)}`);
+    y += 2;
+    fileteNeon(M.left, y - 1, 6);
+    setDrawColor(HAIR); doc.line(M.left + 7, y - 1, M.right, y - 1);
+    setFont("bold", 8.5); setColor(INK);
+    const cols = { cen: 0, us: 45, rec: 80, cus: 120, mar: 152 };
+    doc.text("CENARIO", M.left + cols.cen, y + 4);
+    doc.text("USERS", M.left + cols.us, y + 4);
+    doc.text("RECEITA/MES", M.left + cols.rec, y + 4);
+    doc.text("CUSTO/MES", M.left + cols.cus, y + 4);
+    doc.text("MARGEM", M.left + cols.mar, y + 4);
+    y += 7;
+    setDrawColor(HAIR); doc.line(M.left, y - 2, M.right, y - 2);
+    setFont("normal", 8.5); setColor(BODY);
+    const linhas = [
+      { nome: "conservador", c: pf.cenario_conservador },
+      { nome: "realista", c: pf.cenario_realista },
+      { nome: "otimista", c: pf.cenario_otimista },
+    ];
+    for (const ln of linhas) {
+      if (!ln.c) continue;
+      need(LH);
+      doc.text(ln.nome, M.left + cols.cen, y);
+      doc.text(String(ln.c.usuarios || ""), M.left + cols.us, y);
+      doc.text(typeof ln.c.receita_mensal === "number" ? formatBRL(ln.c.receita_mensal) : String(ln.c.receita_mensal || ""), M.left + cols.rec, y);
+      doc.text(typeof ln.c.custo_infra === "number" ? formatBRL(ln.c.custo_infra) : String(ln.c.custo_infra || ""), M.left + cols.cus, y);
+      doc.text(String(ln.c.margem || ""), M.left + cols.mar, y);
+      y += LH;
+    }
+  }
+
+  function renderRoadmapPDF() {
+    tituloSecao("5", "Roadmap");
+    const fases = (D.roadmap || []).map(r => ({
+      titulo: r.titulo, duracao: r.duracao,
+      semanas: parseSemanas(r.duracao), objetivos: r.objetivos || [], entregavel: r.entregavel || "",
+    }));
+    if (fases.length > 0) {
+      const totalSemanas = fases.reduce((s, f) => s + f.semanas, 0);
+      const gx0 = M.left + 10, gx1 = M.right, gw = gx1 - gx0, rowH = 5;
+      const ganttH = rowH * fases.length + 14;
+      need(ganttH);
+      const ticks = [0];
+      let acc = 0;
+      for (const f of fases) { acc += f.semanas; ticks.push(acc); }
+      const yEixo = y + 3;
+      setDrawColor(HAIR); doc.setLineWidth(0.2);
+      for (let xPx = gx0; xPx <= gx1; xPx += 1.5) doc.circle(xPx, yEixo, 0.12, "F");
+      setFont("normal", 7.5); setColor(MUTE);
+      ticks.forEach((t, i) => {
+        const xt = gx0 + (t / totalSemanas) * gw;
+        const lab = String(t);
+        const wLab = doc.getTextWidth(lab);
+        let xLab;
+        if (i === 0) xLab = xt;
+        else if (i === ticks.length - 1) xLab = xt - wLab;
+        else xLab = xt - wLab / 2;
+        doc.text(lab, xLab, yEixo - 1.5);
+        setDrawColor(MUTE); doc.setLineWidth(0.3);
+        doc.line(xt, yEixo - 0.7, xt, yEixo + 0.7);
+      });
+      let yBarra = yEixo + 4;
+      fases.forEach((f, i) => {
+        const inicioSem = ticks[i];
+        const x0 = gx0 + (inicioSem / totalSemanas) * gw;
+        const wBar = (f.semanas / totalSemanas) * gw;
+        setFont("bold", 8.5); setColor(INK);
+        doc.text(String(i + 1), M.left, yBarra + 2.2);
+        setFillColor(NEON); doc.rect(x0, yBarra, wBar, 2.2, "F");
+        yBarra += rowH;
+      });
+      setFont("normal", 7.5); setColor(MUTE);
+      const lab = "SEMANAS";
+      doc.text(lab, gx0 + gw / 2 - doc.getTextWidth(lab) / 2, yBarra + 2.5);
+      y = yBarra + 7;
+    }
+    fases.forEach((f, i) => {
+      need(LH * 5);
+      setFont("bold", 9.5); setColor(INK);
+      doc.text(`5.${i + 1} ${f.titulo} [${f.duracao}]`, M.left, y);
+      y += LH;
+      f.objetivos.forEach(o => bulletItem(o));
+      if (f.entregavel) {
+        setFont("normal", 9); setColor(BODY);
+        const linhasE = doc.splitTextToSize(`=> Entregavel: ${f.entregavel}`, CW);
+        for (const le of linhasE) { need(LH); doc.text(le, M.left, y); y += LH; }
+      }
+      y += 1.5;
+    });
+  }
+
+  function renderPlanoExecucao() {
+    tituloSecao("6", "Plano de execucao");
+    const passos = D.proximos_passos_fila || [];
+    subtitulo("6.1 Matriz de execucao");
+    fileteNeon(M.left, y - 1, 6);
+    setDrawColor(HAIR); doc.line(M.left + 7, y - 1, M.right, y - 1);
+    setFont("bold", 8.5); setColor(INK);
+    const cols = { step: 0, acao: 14, pronto: 75 };
+    doc.text("STEP", M.left + cols.step, y + 4);
+    doc.text("ACAO", M.left + cols.acao, y + 4);
+    doc.text("DEFINICAO DE PRONTO", M.left + cols.pronto, y + 4);
+    y += 7;
+    setDrawColor(HAIR); doc.line(M.left, y - 2, M.right, y - 2);
+    setFont("normal", 8.5); setColor(BODY);
+    const wAcao = cols.pronto - cols.acao - 2;
+    const wPronto = CW - cols.pronto - 2;
+    passos.forEach(p => {
+      const stepStr = String(p.ordem).padStart(2, "0");
+      const acaoLinhas = doc.splitTextToSize(p.titulo || "", wAcao);
+      const prontoLinhas = doc.splitTextToSize(p.criterio_conclusao || "", wPronto);
+      const nLinhas = Math.max(acaoLinhas.length, prontoLinhas.length);
+      need(LH * nLinhas + 1);
+      for (let i = 0; i < nLinhas; i++) {
+        if (i === 0) doc.text(stepStr, M.left + cols.step, y);
+        if (acaoLinhas[i]) doc.text(acaoLinhas[i], M.left + cols.acao, y);
+        if (prontoLinhas[i]) doc.text(prontoLinhas[i], M.left + cols.pronto, y);
+        y += LH;
+      }
+      y += 0.5;
+    });
+    y += 3;
+    subtitulo("6.2 Detalhamento por etapa");
+    passos.forEach(p => {
+      need(LH * 5);
+      setFont("bold", 9); setColor(INK);
+      const stepStr = String(p.ordem).padStart(2, "0");
+      doc.text(`STEP ${stepStr}: ${p.titulo}`, M.left, y);
+      y += LH;
+      if (p.descricao) paragrafo(p.descricao);
+      if (p.criterio_conclusao) {
+        setFont("normal", 9); setColor(ACCENT);
+        const linhasC = doc.splitTextToSize(`[OK quando] ${p.criterio_conclusao}`, CW);
+        for (const lc of linhasC) { need(LH); doc.text(lc, M.left, y); y += LH; }
+      }
+      y += 1.5;
+    });
+  }
+
+  function renderConclusao() {
+    tituloSecao("7", "Conclusao");
+    const nome = onboarding.nomeSolucao || "A solucao";
+    const aberturaConclusao =
+      `${nome} apresenta maturidade arquitetural ${MAT.texto}. ` +
+      `Esta classificacao reflete o estado atual da arquitetura proposta ` +
+      `diante dos vetores de risco e gargalos identificados nas secoes 3 e 4. ` +
+      `O numero indica o estagio dentro da faixa "${MAT.categoria}" e nao deve ` +
+      `ser lido como nota absoluta, mas como referencia de quanto da fundacao ` +
+      `tecnica ja esta no lugar para o proximo salto de escala.`;
+    paragrafo(aberturaConclusao);
+    if (D.score_narrativa) { y += 1; paragrafo(D.score_narrativa); }
+    function pickCritico(arr) {
+      if (!arr || !arr.length) return null;
+      const critico = arr.find(x => /alta|critic/.test(String(x.severidade || "").toLowerCase()));
+      return critico || arr[0];
+    }
+    const gCrit = pickCritico(D.gargalos);
+    const rCrit = pickCritico(D.riscos_fundamentais);
+    const ultimaFase = D.roadmap && D.roadmap.length ? D.roadmap[D.roadmap.length - 1] : null;
+    const recPorFaixa = {
+      Fundacao: "deve tratar a consolidacao da fundacao tecnica como pre-requisito inegociavel antes de qualquer esforco de crescimento",
+      Estruturacao: "tem uma base utilizavel, mas precisa endurecer os pontos estruturais antes de acelerar a escala",
+      Escala: "esta tecnicamente apta a crescer, mantendo atencao continua aos vetores de carga ja mapeados",
+      Maturidade: "apresenta arquitetura madura e pode priorizar otimizacao e diferenciacao competitiva",
+    };
+    let fechamento = `Em sintese, ${nome} ${recPorFaixa[MAT.categoria] || recPorFaixa.Fundacao}. `;
+    if (gCrit) {
+      const idx = D.gargalos.indexOf(gCrit) + 1;
+      fechamento += `O vetor critico de curto prazo e o gargalo [G-${idx}] ${gCrit.titulo}` +
+        (gCrit.quando_aparece ? `, com ponto de inflexao previsto em ${gCrit.quando_aparece}` : "") + ". ";
+    }
+    if (rCrit) {
+      const idx = D.riscos_fundamentais.indexOf(rCrit) + 1;
+      fechamento += `No plano estrutural, o maior risco e [R-${idx}] ${rCrit.titulo}, ` +
+        `enderecado pela mitigacao descrita na secao 3.3. `;
+    }
+    if (ultimaFase && ultimaFase.entregavel) {
+      fechamento += `Superados esses pontos, o roadmap projeta como horizonte de chegada: ${ultimaFase.entregavel}.`;
+    }
+    y += 1; paragrafo(fechamento);
+    y += 3;
+    setFont("italic", 9); setColor(MUTE);
+    paragrafo("Este documento e um ativo tecnico. Exporte o Markdown e anexe a qualquer assistente de IA para aprofundamento.");
+  }
+
+  renderCapa();
+  renderPagina1Corpo();
+  renderProblema();
+  renderSolucao();
+  renderDiagnostico();
+  renderProjecao();
+  renderRoadmapPDF();
+  renderPlanoExecucao();
+  renderConclusao();
+  rodape();
+
+  const slug = (onboarding.nomeSolucao || "Solucao").normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9]+/g, "_");
+  doc.save(`Diagnostico_${slug}_SteveArch.pdf`);
 }
-
-
-
-
 
 function exportMD() {
   if (!D) return;
@@ -428,7 +656,6 @@ function exportMD() {
   URL.revokeObjectURL(url);
 }
 
-// CRONOGRAMA DE EXECUÇÃO
 function renderCronograma(data) {
   if (!data.proximos_passos_fila || !data.proximos_passos_fila.length) {
     const wrap = document.querySelector('.chat-cronograma-wrap');
@@ -437,10 +664,8 @@ function renderCronograma(data) {
     if (cw) cw.style.display = 'none';
     return;
   }
-
   const cacheKey = getCronogramaKey();
   const saved = JSON.parse(localStorage.getItem(cacheKey) || '{}');
-
   const list = document.getElementById('cronogramaList');
   list.innerHTML = data.proximos_passos_fila.map((p, i) => {
     const id = `step_${i}`;
@@ -459,7 +684,6 @@ function renderCronograma(data) {
       </div>
     `;
   }).join('');
-
   updateCronogramaProgress();
 }
 
@@ -473,10 +697,8 @@ function toggleCrono(id) {
   const saved = JSON.parse(localStorage.getItem(cacheKey) || '{}');
   saved[id] = !saved[id];
   localStorage.setItem(cacheKey, JSON.stringify(saved));
-
   const item = document.querySelector(`.crono-item[data-id="${id}"]`);
   if (item) item.classList.toggle('done');
-
   updateCronogramaProgress();
 }
 
@@ -485,10 +707,8 @@ function updateCronogramaProgress() {
   const done = document.querySelectorAll('.crono-item.done').length;
   const total = items.length;
   const pct = total ? (done / total * 100) : 0;
-
   const progressEl = document.getElementById('cronogramaProgress');
   const barEl = document.getElementById('cronogramaBar');
-
   if (progressEl) progressEl.textContent = `${done} / ${total}`;
   if (barEl) barEl.style.width = pct + '%';
 }

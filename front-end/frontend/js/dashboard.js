@@ -237,9 +237,13 @@ function exportPDF() {
   }
 
   function paragrafo(txt) {
-    setFont("normal", 9); setColor(BODY);
     const linhas = doc.splitTextToSize(txt, CW);
-    for (const linha of linhas) { need(LH); doc.text(linha, M.left, y); y += LH; }
+    for (const linha of linhas) {
+      need(LH);
+      setFont("normal", 9); setColor(BODY);
+      doc.text(linha, M.left, y);
+      y += LH;
+    }
   }
 
   function paragrafoMultiplo(txt) {
@@ -248,10 +252,10 @@ function exportPDF() {
   }
 
   function bulletItem(txt) {
-    setFont("normal", 9); setColor(BODY);
     const linhas = doc.splitTextToSize(txt, CW - 6);
     for (let i = 0; i < linhas.length; i++) {
       need(LH);
+      setFont("normal", 9); setColor(BODY);
       doc.text(i === 0 ? "*" : " ", M.left, y);
       doc.text(linhas[i], M.left + 4, y);
       y += LH;
@@ -292,7 +296,7 @@ function exportPDF() {
     setFont("normal", 11); setColor([170, 180, 175]);
     doc.text(dominio, (PAGE_W - doc.getTextWidth(dominio)) / 2, 170);
     setFont("normal", 9); setColor([170, 180, 175]);
-    const rod = "Este documento e um ativo tecnico.";
+    const rod = "Ativo tecnico";
     doc.text(rod, (PAGE_W - doc.getTextWidth(rod)) / 2, M.bottom);
   }
 
@@ -388,9 +392,13 @@ function exportPDF() {
       y += LH;
       paragrafo(r.descricao || "");
       if (r.mitigacao) {
-        setFont("normal", 9); setColor(BODY);
         const linhasMit = doc.splitTextToSize(`> Mitigacao: ${r.mitigacao}`, CW - 4);
-        for (const lm of linhasMit) { need(LH); doc.text(lm, M.left + 2, y); y += LH; }
+        for (const lm of linhasMit) {
+          need(LH);
+          setFont("normal", 9); setColor(BODY);
+          doc.text(lm, M.left + 2, y);
+          y += LH;
+        }
       }
       y += 1;
     });
@@ -405,9 +413,10 @@ function exportPDF() {
     doc.text("FERRAMENTA", M.left + cols.ferr, y + 4);
     doc.text("CUSTO", M.left + cols.custo, y + 4);
     doc.text("FAM", M.left + cols.fam, y + 4);
-    y += 7;
+    y += 9;
     setDrawColor(HAIR); doc.line(M.left, y - 2, M.right, y - 2);
     setFont("normal", 8.5); setColor(BODY);
+    y += 1.5;
     for (const item of stack) {
       need(LH);
       doc.text((item.componente || "").substring(0, 28), M.left + cols.comp, y);
@@ -434,9 +443,10 @@ function exportPDF() {
     doc.text("RECEITA/MES", M.left + cols.rec, y + 4);
     doc.text("CUSTO/MES", M.left + cols.cus, y + 4);
     doc.text("MARGEM", M.left + cols.mar, y + 4);
-    y += 7;
+    y += 9;
     setDrawColor(HAIR); doc.line(M.left, y - 2, M.right, y - 2);
     setFont("normal", 8.5); setColor(BODY);
+    y += 1.5;
     const linhas = [
       { nome: "conservador", c: pf.cenario_conservador },
       { nome: "realista", c: pf.cenario_realista },
@@ -506,9 +516,13 @@ function exportPDF() {
       y += LH;
       f.objetivos.forEach(o => bulletItem(o));
       if (f.entregavel) {
-        setFont("normal", 9); setColor(BODY);
         const linhasE = doc.splitTextToSize(`=> Entregavel: ${f.entregavel}`, CW);
-        for (const le of linhasE) { need(LH); doc.text(le, M.left, y); y += LH; }
+        for (const le of linhasE) {
+          need(LH);
+          setFont("normal", 9); setColor(BODY);
+          doc.text(le, M.left, y);
+          y += LH;
+        }
       }
       y += 1.5;
     });
@@ -525,9 +539,10 @@ function exportPDF() {
     doc.text("STEP", M.left + cols.step, y + 4);
     doc.text("ACAO", M.left + cols.acao, y + 4);
     doc.text("DEFINICAO DE PRONTO", M.left + cols.pronto, y + 4);
-    y += 7;
+    y += 9;
     setDrawColor(HAIR); doc.line(M.left, y - 2, M.right, y - 2);
     setFont("normal", 8.5); setColor(BODY);
+    y += 1.5;
     const wAcao = cols.pronto - cols.acao - 2;
     const wPronto = CW - cols.pronto - 2;
     passos.forEach(p => {
@@ -554,9 +569,13 @@ function exportPDF() {
       y += LH;
       if (p.descricao) paragrafo(p.descricao);
       if (p.criterio_conclusao) {
-        setFont("normal", 9); setColor(ACCENT);
         const linhasC = doc.splitTextToSize(`[OK quando] ${p.criterio_conclusao}`, CW);
-        for (const lc of linhasC) { need(LH); doc.text(lc, M.left, y); y += LH; }
+        for (const lc of linhasC) {
+          need(LH);
+          setFont("normal", 9); setColor(ACCENT);
+          doc.text(lc, M.left, y);
+          y += LH;
+        }
       }
       y += 1.5;
     });
@@ -622,7 +641,6 @@ function exportPDF() {
   const slug = (onboarding.nomeSolucao || "Solucao").normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9]+/g, "_");
   doc.save(`Diagnostico_${slug}_SteveArch.pdf`);
 }
-
 function exportMD() {
   if (!D) return;
   const onboarding = JSON.parse(localStorage.getItem('steveOnboarding') || '{}');

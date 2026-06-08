@@ -1,18 +1,18 @@
-/ ambiente virtual
+# ambiente virtual
 .venv/
 venv/
 env/
 ENV/
 *.egg-info/
 
-/ itens em cache py
+# itens em cache py
 __pycache__/
 *.py[cod]
 *$py.class
 *.so
 .Python
 
-/ ide ambiente de desenv
+# ide ambiente de desenv
 .idea/
 .vscode/
 *.swp
@@ -20,29 +20,26 @@ __pycache__/
 *~
 .DS_Store
 
-/ dados locais, não mandamos para o git
+# dados locais, nao mandamos para o git
 data/sessions/
 data/vectorstore/
 data/corpus/
 
-/ variaveis de ambiente
+# variaveis de ambiente
 .env
+.env.*
 !.env.example
 
-/ logs
+# logs
 *.log
 
-/ testadando
+# testando
 .pytest_cache/
 .coverage
 htmlcov/
 
-/ note
+# notebooks
 .ipynb_checkpoints/
 
-.env.*
-
+# node
 node_modules/
-
-
-

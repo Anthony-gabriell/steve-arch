@@ -14,13 +14,21 @@ from slowapi.util import get_remote_address
 
 from app.core.config import settings
 
-
 logger = logging.getLogger(__name__)
 router = APIRouter()
 client = Anthropic(api_key=settings.anthropic_api_key)
 
-# Rate limiter: 3 diagnósticos por IP por dia
-limiter = Limiter(key_func=get_remote_address)
+# Pega o IP real do usuario, mesmo atras do proxy da Railway.
+# Sem isso, todos os usuarios compartilham o IP do proxy e o limite
+# de 3/dia dispara globalmente para todo mundo.
+def get_real_ip(request: Request) -> str:
+    forwarded = request.headers.get("X-Forwarded-For")
+    if forwarded:
+        return forwarded.split(",")[0].strip()
+    return request.client.host
+
+# Rate limiter: 3 diagnosticos por IP por dia
+limiter = Limiter(key_func=get_real_ip)
 
 
 # ─── SCHEMAS ──────────────────────────────────────────────────────────────────

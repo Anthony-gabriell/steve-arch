@@ -453,7 +453,7 @@
       <span id="navDiagNum">DIAGNÓSTICO</span>
       <span class="live">SESSÃO ATIVA</span>
       <a href="ajustar.html" class="btn-nav outline">Ajustar respostas</a>
-      <a href="onboarding.html" class="btn-nav primary" onclick="limparCacheAnalise()">Nova análise</a>
+      <a href="javascript:void(0)" class="btn-nav primary" onclick="confirmarNovaAnalise()">Nova análise</a>
       <button class="hamburger" id="hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
     </div>
   </nav>
@@ -461,7 +461,7 @@
     <button class="menu-close-overlay" id="menuClose">✕</button>
     <nav class="menu-overlay-nav">
       <a href="index.html" class="menu-link">Home</a>
-      <a href="onboarding.html" class="menu-link">Analisar solução</a>
+      <a href="javascript:void(0)" class="menu-link" onclick="confirmarNovaAnalise()">Analisar solução</a>
       <a href="minhas-analises.html" class="menu-link">Minhas análises</a>
       <a href="produtos.html" class="menu-link">Produtos</a>
       <a href="contato.html" class="menu-link">Contato</a>
@@ -743,6 +743,23 @@
 
 </div>
 
+<!-- CONFIRM NOVA ANÁLISE MODAL -->
+<div class="waitlist-modal" id="confirmNovaAnaliseModal">
+  <div class="waitlist-content" style="max-width:420px">
+    <div class="waitlist-header">
+      <span class="waitlist-title">NOVA ANÁLISE</span>
+      <button class="waitlist-close" id="confirmNovaClose">✕</button>
+    </div>
+    <div class="waitlist-body" style="gap:20px">
+      <p class="waitlist-intro">Iniciar uma nova análise substituirá os dados atuais. Deseja prosseguir?</p>
+      <div style="display:flex;gap:10px">
+        <button class="btn-final outline" id="confirmNovaCancelar" style="flex:1">Cancelar</button>
+        <button class="btn-final primary" id="confirmNovaContinuar" style="flex:1">Continuar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- WAITLIST MODAL -->
 <div class="waitlist-modal" id="waitlistModal">
   <div class="waitlist-content">
@@ -835,6 +852,36 @@
 
   // Expose openWaitlistModal globally (called by the "Cadastre" span onclick)
   window.openWaitlistModal = openWaitlistModal;
+
+  // Nova análise confirmation
+  function hasAnalise() {
+    if (localStorage.getItem('steveOnboarding')) return true;
+    return Object.keys(localStorage).some(function(k) { return k.startsWith('steveDiagnostico'); });
+  }
+  function confirmarNovaAnalise() {
+    if (hasAnalise()) {
+      document.getElementById('confirmNovaAnaliseModal').classList.add('open');
+    } else {
+      limparCacheAnalise();
+      window.location.href = 'onboarding.html';
+    }
+  }
+  window.confirmarNovaAnalise = confirmarNovaAnalise;
+
+  document.getElementById('confirmNovaClose').addEventListener('click', function() {
+    document.getElementById('confirmNovaAnaliseModal').classList.remove('open');
+  });
+  document.getElementById('confirmNovaCancelar').addEventListener('click', function() {
+    document.getElementById('confirmNovaAnaliseModal').classList.remove('open');
+  });
+  document.getElementById('confirmNovaContinuar').addEventListener('click', function() {
+    document.getElementById('confirmNovaAnaliseModal').classList.remove('open');
+    limparCacheAnalise();
+    window.location.href = 'onboarding.html';
+  });
+  document.getElementById('confirmNovaAnaliseModal').addEventListener('click', function(e) {
+    if (e.target === this) this.classList.remove('open');
+  });
 
   document.getElementById('waitlistClose').addEventListener('click', closeWaitlistModal);
   document.getElementById('waitlistModal').addEventListener('click', function(e) {

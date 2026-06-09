@@ -423,7 +423,7 @@
       .hero-chart-scroll { overflow-x: auto; padding-bottom: 8px; -webkit-overflow-scrolling: touch; }
       .hero-chart-scroll::-webkit-scrollbar { height: 2px; }
       .hero-chart-scroll::-webkit-scrollbar-thumb { background: rgba(46,232,176,0.2); }
-      .hero-chart { min-width: 600px; height: 200px; }
+      .hero-chart { min-width: 900px; height: 200px; }
       /* next-step: wrap so text doesn't force horizontal overflow */
       .next-step { flex-wrap: wrap; row-gap: 8px; }
       .ns-divider { display: none; }
@@ -437,8 +437,10 @@
          hamburger overlay still has "Analisar solução" */
       #navDiagNum, .nav-meta .live { display: none; }
       .nav-meta .btn-nav.primary { display: none; }
-      /* hide SVG logo text; inline style:display:block overridden with !important */
-      .nav-logo svg { display: none !important; }
+      /* scale down the SVG wordmark to fit the mobile navbar */
+      .nav-logo svg { width: 120px; height: auto; }
+      .navbar { padding: 0 12px; }
+      .btn-nav.outline { white-space: nowrap; padding: 4px 8px; font-size: 0.55rem; letter-spacing: 0.08em; }
       /* Chat mock */
       .chat-mock-body { padding: 18px 14px; }
       .chat-bubble { font-size: 0.82rem; padding: 10px 12px; }
@@ -452,7 +454,7 @@
       .hero-chart-scroll { overflow-x: auto; padding-bottom: 8px; -webkit-overflow-scrolling: touch; }
       .hero-chart-scroll::-webkit-scrollbar { height: 2px; }
       .hero-chart-scroll::-webkit-scrollbar-thumb { background: rgba(46,232,176,0.2); }
-      .hero-chart { min-width: 600px; height: 200px; }
+      .hero-chart { min-width: 900px; height: 200px; }
       /* chart-header: tighten insets on narrow screens */
       .chart-header { top: 10px; left: 14px; right: 14px; }
       .chart-legend { flex-wrap: wrap; gap: 8px; }
@@ -490,7 +492,7 @@
     <div class="nav-meta">
       <span id="navDiagNum">DIAGNÓSTICO</span>
       <span class="live">SESSÃO ATIVA</span>
-      <a href="ajustar.html" class="btn-nav outline">Ajustar respostas</a>
+      <a href="ajustar.html" class="btn-nav outline">Editar resposta</a>
       <a href="javascript:void(0)" class="btn-nav primary" onclick="confirmarNovaAnalise()">Nova análise</a>
       <button class="hamburger" id="hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
     </div>
@@ -709,7 +711,7 @@
       </div>
 
       <div class="chat-mock-footer">
-          <span class="chat-mock-hint">Função em desenvolvimento. <span class="hint-cadastre" onclick="openWaitlistModal()">Cadastre</span> seu email para ser dos primeiros a usar.</span>
+          <span class="chat-mock-hint">Função em desenvolvimento. <span class="hint-cadastre" onclick="openWaitlistModal()">Cadastre</span> seu email para ser um dos primeiros a usar.</span>
           </div>
 
     </div>

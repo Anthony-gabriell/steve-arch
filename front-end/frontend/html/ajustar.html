@@ -67,6 +67,11 @@
     .edit-body { padding: 20px 24px; overflow-y: auto; flex: 1; }
     .edit-footer { padding: 16px 24px; border-top: 1px solid var(--border-base); display: flex; gap: 10px; justify-content: flex-end; }
 
+    /* Esconde o botão editar apenas nos 3 primeiros itens da lista */
+    .rev-item:nth-child(-n+4) .rev-edit {
+    display: none;
+    }
+
     .aj-input { width: 100%; background: var(--bg-elevated); border: 1px solid var(--border-base); border-radius: 2px; padding: 12px 14px; color: var(--text-primary); font-family: 'Outfit', sans-serif; font-size: 0.9rem; outline: none; transition: border-color 0.2s; }
     .aj-input:focus { border-color: var(--accent); }
     .aj-textarea { width: 100%; min-height: 120px; background: var(--bg-elevated); border: 1px solid var(--border-base); border-radius: 2px; padding: 12px 14px; color: var(--text-primary); font-family: 'Outfit', sans-serif; font-size: 0.9rem; line-height: 1.5; outline: none; resize: vertical; transition: border-color 0.2s; }

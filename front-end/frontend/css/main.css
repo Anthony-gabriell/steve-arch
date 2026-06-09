@@ -161,13 +161,13 @@ p { color: var(--text-second); font-weight: 300; line-height: 1.6; }
 .nav-logo-link { display: flex; align-items: center; gap: 12px; text-decoration: none; }
 
 .btn-cta-nav {
-  padding: 9px 22px;
+  padding: 5px 14px;
   background: #2EE8B0;
   color: #060809;
   font-family: 'DM Sans', sans-serif;
-  font-size: 0.8rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.07em;
   text-transform: uppercase;
   border-radius: 6px;
   text-decoration: none;
@@ -878,16 +878,16 @@ p { color: var(--text-second); font-weight: 300; line-height: 1.6; }
   .navbar {
     padding: 0 16px;
   }
-  /* Scale down the animated SVG so logo + CTA + hamburger fit on small screens */
+  /* Scale the animated SVG to remain the visual protagonist on small screens */
   .atech-logo-svg {
-    width: 130px;
+    width: 150px;
     height: auto;
   }
-  /* Keep the CTA on one line and vertically centred within the 72px navbar */
+  /* Keep the CTA on one line and clearly secondary to the wordmark */
   .btn-cta-nav {
     white-space: nowrap;
-    padding: 7px 14px;
-    font-size: 0.72rem;
+    padding: 4px 10px;
+    font-size: 0.62rem;
     letter-spacing: 0.05em;
   }
 }
@@ -897,6 +897,8 @@ p { color: var(--text-second); font-weight: 300; line-height: 1.6; }
    ============================ */
 .atech-logo-svg {
   display: block;
+  width: 250px;
+  height: auto;
   filter: drop-shadow(0 0 6px rgba(46, 232, 176, 0.3));
 }
 

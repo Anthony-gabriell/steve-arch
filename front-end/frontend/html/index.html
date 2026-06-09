@@ -18,6 +18,12 @@
   <style>
     @media (max-width: 600px) {
       .btn-cta-nav { display: none; }
+      /* Root cause: final-cta::before is 700px wide inside a position:relative
+         parent with no overflow guard -- bleeds far beyond a 375px viewport */
+      .final-cta { overflow: hidden; }
+      /* Safety net: body overflow-x:hidden has a browser propagation quirk that
+         lets the html element still scroll; lock both on mobile only */
+      html, body { overflow-x: hidden; }
     }
   </style>
 </head>

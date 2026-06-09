@@ -444,9 +444,11 @@
       .export-actions { flex-direction: column; }
       .btn-export { width: 100%; justify-content: center; }
       .export-features { grid-template-columns: 1fr; gap: 10px; }
-      /* hero-chart: explicit height (768px rule overrides the broken height:auto
-         from the 1100px breakpoint; narrow phones get a shorter chart) */
-      .hero-chart { height: 160px; }
+      /* hero-chart: horizontal scroll on mobile, same approach as .roadmap-scroll */
+      .hero-chart-scroll { overflow-x: auto; padding-bottom: 8px; -webkit-overflow-scrolling: touch; }
+      .hero-chart-scroll::-webkit-scrollbar { height: 2px; }
+      .hero-chart-scroll::-webkit-scrollbar-thumb { background: rgba(46,232,176,0.2); }
+      .hero-chart { min-width: 600px; height: 200px; }
       /* chart-header: tighten insets on narrow screens */
       .chart-header { top: 10px; left: 14px; right: 14px; }
       .chart-legend { flex-wrap: wrap; gap: 8px; }
@@ -542,6 +544,7 @@
 
         <div class="metrics-row" id="metricsRow"></div>
 
+        <div class="hero-chart-scroll">
         <div class="hero-chart">
           <div class="chart-header">
             <div class="chart-title-block">
@@ -583,6 +586,7 @@
             <!-- Nodes -->
             <g id="nodesGroup"></g>
           </svg>
+        </div>
         </div>
 
         <div class="next-step">

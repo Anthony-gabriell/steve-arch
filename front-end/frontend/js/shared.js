@@ -1,5 +1,7 @@
 // Constantes compartilhadas entre onboarding, dashboard e ajustar
-const API_URL = 'http://localhost:8000/api/v1/diagnostico';
+const API_URL = (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
+  ? 'http://localhost:8000/api/v1/diagnostico'
+  : 'https://steve-arch-production.up.railway.app/api/v1/diagnostico';
 
 const AREA_LABELS = {
   marketing: 'Marketing Digital',

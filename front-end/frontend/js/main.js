@@ -127,4 +127,22 @@
     });
   });
 
+  // ============================
+  // 6. Conditional nav links
+  // ============================
+  var _hasAnalysis = (function() {
+    try {
+      if (localStorage.getItem('steveOnboarding')) return true;
+      for (var i = 0; i < localStorage.length; i++) {
+        var k = localStorage.key(i);
+        if (k && k.indexOf('steveDiagnostico_') === 0) return true;
+      }
+    } catch(e) {}
+    return false;
+  })();
+  if (_hasAnalysis) {
+    var _ml = document.getElementById('menuMinhasAnalises');
+    if (_ml) _ml.style.display = '';
+  }
+
 })();

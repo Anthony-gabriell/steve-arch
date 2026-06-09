@@ -43,7 +43,9 @@
       <button class="menu-close" id="menuClose">✕</button>
       <nav class="menu-overlay-nav">
         <a href="index.html" class="menu-link">Home</a>
-        <a href="produtos.html" class="menu-link">Analisar solução</a>
+        <a href="onboarding.html" class="menu-link">Analisar solução</a>
+        <a href="minhas-analises.html" class="menu-link" id="menuMinhasAnalises" style="display:none">Minhas análises</a>
+        <a href="produtos.html" class="menu-link">Produtos</a>
         <a href="contato.html" class="menu-link">Contato</a>
       </nav>
     </div>
@@ -104,7 +106,7 @@
               </a>
             </div>
           </div>
-          <form class="contact-form fade-in delay-1" action="#" method="POST" aria-label="Formulário de contato">
+          <form class="contact-form fade-in delay-1" id="contactForm" novalidate aria-label="Formulário de contato">
             <h3>Envie sua mensagem</h3>
             <div class="form-group">
               <label for="nome">Nome</label>
@@ -129,7 +131,8 @@
               <label for="mensagem">Mensagem</label>
               <textarea id="mensagem" name="mensagem" placeholder="Descreva sua solução ou dúvida..." required></textarea>
             </div>
-            <button type="submit" class="btn btn--primary" style="width:calc(100%);">Enviar mensagem</button>
+            <button type="submit" id="contactSubmitBtn" class="btn btn--primary" style="width:100%;">Enviar mensagem</button>
+            <p id="contactFeedback" aria-live="polite" style="display:none;margin-top:12px;text-align:center;font-size:0.82rem;"></p>
             <p class="form-note">Respondemos em até 24 horas.</p>
           </form>
         </div>
@@ -149,6 +152,53 @@
       </div>
     </footer>
   </div>
+<script>
+(function() {
+  var form = document.getElementById('contactForm');
+  if (!form) return;
+  form.addEventListener('submit', function(e) {
+    e.preventDefault();
+    var btn = document.getElementById('contactSubmitBtn');
+    var feedback = document.getElementById('contactFeedback');
+    var nome = document.getElementById('nome').value.trim();
+    var email = document.getElementById('email').value.trim();
+    var assunto = document.getElementById('assunto').value;
+    var mensagem = document.getElementById('mensagem').value.trim();
+    if (!nome || !email || !assunto || !mensagem) return;
+    btn.disabled = true;
+    btn.textContent = 'Enviando...';
+    feedback.style.display = 'none';
+    fetch('https://formspree.io/f/xykajyjb', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify({ nome: nome, email: email, assunto: assunto, mensagem: mensagem })
+    })
+    .then(function(r) { return r.json().then(function(b) { return { ok: r.ok, body: b }; }); })
+    .then(function(res) {
+      if (res.ok) {
+        feedback.textContent = 'Mensagem enviada, retornarei em breve';
+        feedback.style.color = '#2EE8B0';
+        feedback.style.display = '';
+        btn.style.display = 'none';
+        form.querySelectorAll('input, select, textarea').forEach(function(f) { f.disabled = true; });
+      } else {
+        feedback.textContent = 'Erro ao enviar. Tente novamente.';
+        feedback.style.color = '#FF4D6D';
+        feedback.style.display = '';
+        btn.disabled = false;
+        btn.textContent = 'Enviar mensagem';
+      }
+    })
+    .catch(function() {
+      feedback.textContent = 'Erro ao enviar. Verifique sua conexão e tente novamente.';
+      feedback.style.color = '#FF4D6D';
+      feedback.style.display = '';
+      btn.disabled = false;
+      btn.textContent = 'Enviar mensagem';
+    });
+  });
+})();
+</script>
 <script>
 (function() {
   function animateLogo() {

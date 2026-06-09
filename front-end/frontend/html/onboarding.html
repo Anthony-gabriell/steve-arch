@@ -119,6 +119,17 @@
       .progress-wrap { padding: 12px 18px; }
       .chat-area, .options-area { padding-left: 14px; padding-right: 14px; }
     }
+    .hamburger { background: none; border: none; cursor: pointer; display: flex; flex-direction: column; gap: 5px; padding: 4px; flex-shrink: 0; }
+    .hamburger span { display: block; width: 22px; height: 1.5px; background: var(--accent); transition: all 0.3s ease; }
+    .hamburger.active span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
+    .hamburger.active span:nth-child(2) { opacity: 0; }
+    .hamburger.active span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
+    .menu-overlay { position: fixed; inset: 0; z-index: 200; background: rgba(6,8,9,0.97); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.4s ease; }
+    .menu-overlay.open { opacity: 1; pointer-events: all; }
+    .menu-close { position: absolute; top: 28px; right: 48px; background: none; border: none; color: var(--accent); font-size: 1.5rem; cursor: pointer; line-height: 1; }
+    .menu-overlay-nav { display: flex; flex-direction: column; align-items: center; gap: 40px; }
+    .menu-link { font-family: 'Outfit', sans-serif; font-size: clamp(2.5rem, 6vw, 4.5rem); font-weight: 800; color: #F0F4F3; text-decoration: none; letter-spacing: -0.02em; transition: color 0.2s ease; line-height: 1; }
+    .menu-link:hover { color: var(--accent); }
   </style>
 </head>
 <body>
@@ -130,11 +141,24 @@
       <span class="nav-brand">Steve Arch</span>
     </a>
     <h1 class="step-question" id="stepQuestion">Como se chama<br><em>sua solução?</em></h1>
-    <a href="index.html" class="nav-back">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M19 12H5m0 0l7 7m-7-7 7-7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-      Voltar
-    </a>
+    <div style="display:flex;align-items:center;gap:16px;flex-shrink:0;">
+      <a href="index.html" class="nav-back">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M19 12H5m0 0l7 7m-7-7 7-7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        Voltar
+      </a>
+      <button class="hamburger" id="hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
+    </div>
   </nav>
+  <div class="menu-overlay" id="menuOverlay">
+    <button class="menu-close" id="menuClose">✕</button>
+    <nav class="menu-overlay-nav">
+      <a href="index.html" class="menu-link">Home</a>
+      <a href="onboarding.html" class="menu-link">Analisar solução</a>
+      <a href="minhas-analises.html" class="menu-link" id="menuMinhasAnalises" style="display:none">Minhas análises</a>
+      <a href="produtos.html" class="menu-link">Produtos</a>
+      <a href="contato.html" class="menu-link">Contato</a>
+    </nav>
+  </div>
   <div class="main">
     <div class="chat-area">
       <div class="chat-messages" id="chatMessages">
@@ -166,5 +190,42 @@
 </div>
 <script src="../js/shared.js"></script>
 <script src="../js/onboarding.js"></script>
+<script>
+(function() {
+  var hamburger = document.getElementById('hamburger');
+  var menuOverlay = document.getElementById('menuOverlay');
+  var menuClose = document.getElementById('menuClose');
+  if (hamburger && menuOverlay && menuClose) {
+    hamburger.addEventListener('click', function() {
+      hamburger.classList.toggle('active');
+      menuOverlay.classList.toggle('open');
+    });
+    menuClose.addEventListener('click', function() {
+      hamburger.classList.remove('active');
+      menuOverlay.classList.remove('open');
+    });
+    menuOverlay.querySelectorAll('.menu-link').forEach(function(link) {
+      link.addEventListener('click', function() {
+        hamburger.classList.remove('active');
+        menuOverlay.classList.remove('open');
+      });
+    });
+  }
+  try {
+    var found = false;
+    if (localStorage.getItem('steveOnboarding')) { found = true; }
+    else {
+      for (var i = 0; i < localStorage.length; i++) {
+        var k = localStorage.key(i);
+        if (k && k.indexOf('steveDiagnostico_') === 0) { found = true; break; }
+      }
+    }
+    if (found) {
+      var ml = document.getElementById('menuMinhasAnalises');
+      if (ml) ml.style.display = '';
+    }
+  } catch(e) {}
+})();
+</script>
 </body>
 </html>

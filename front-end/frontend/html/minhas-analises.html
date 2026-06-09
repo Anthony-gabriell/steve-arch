@@ -389,6 +389,19 @@
     .feat-icon { flex-shrink: 0; font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; font-weight: 700; letter-spacing: 0.1em; color: #2EE8B0; padding: 6px 10px; background: rgba(46, 232, 176, 0.06); border: 1px solid rgba(46, 232, 176, 0.2); border-radius: 2px; min-width: 44px; text-align: center; }
     .feat-text { font-size: 0.78rem; color: #8B9590; line-height: 1.5; font-weight: 300; }
 
+    /* HAMBURGER + OVERLAY NAV */
+    .hamburger { background: none; border: none; cursor: pointer; display: flex; flex-direction: column; gap: 5px; padding: 4px; margin-left: 8px; flex-shrink: 0; }
+    .hamburger span { display: block; width: 22px; height: 1.5px; background: var(--accent); transition: all 0.3s ease; }
+    .hamburger.active span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
+    .hamburger.active span:nth-child(2) { opacity: 0; }
+    .hamburger.active span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
+    .menu-overlay { position: fixed; inset: 0; z-index: 200; background: rgba(6,8,9,0.97); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.4s ease; }
+    .menu-overlay.open { opacity: 1; pointer-events: all; }
+    .menu-close-overlay { position: absolute; top: 28px; right: 48px; background: none; border: none; color: var(--accent); font-size: 1.5rem; cursor: pointer; line-height: 1; }
+    .menu-overlay-nav { display: flex; flex-direction: column; align-items: center; gap: 40px; }
+    .menu-link { font-family: 'Outfit', sans-serif; font-size: clamp(2.5rem, 6vw, 4.5rem); font-weight: 800; color: #F0F4F3; text-decoration: none; letter-spacing: -0.02em; transition: color 0.2s ease; line-height: 1; }
+    .menu-link:hover { color: var(--accent); }
+
     /* RESPONSIVO GERAL */
     @media (max-width: 1100px) {
       .hero-chart { height: auto; padding-bottom: 12px; }
@@ -441,8 +454,19 @@
       <span class="live">SESSÃO ATIVA</span>
       <a href="ajustar.html" class="btn-nav outline">Ajustar respostas</a>
       <a href="onboarding.html" class="btn-nav primary" onclick="limparCacheAnalise()">Nova análise</a>
+      <button class="hamburger" id="hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
     </div>
   </nav>
+  <div class="menu-overlay" id="menuOverlay">
+    <button class="menu-close-overlay" id="menuClose">✕</button>
+    <nav class="menu-overlay-nav">
+      <a href="index.html" class="menu-link">Home</a>
+      <a href="onboarding.html" class="menu-link">Analisar solução</a>
+      <a href="minhas-analises.html" class="menu-link">Minhas análises</a>
+      <a href="produtos.html" class="menu-link">Produtos</a>
+      <a href="contato.html" class="menu-link">Contato</a>
+    </nav>
+  </div>
 
   <!-- LOADING -->
   <div class="loading-state" id="loadingState">
@@ -680,13 +704,7 @@
 <div class="block export-block">
   <div class="export-inner">
     <span class="export-tag">SEU ATIVO TÉCNICO</span>
-    <h2 class="export-title">Esse diagnóstico é seu</h2>
-    <p class="export-lead">Leve essas respostas para qualquer IA.</p>
-
-    <p class="export-body">
-      Exporte o laudo em <strong>.MD</strong> e cole em qualquer assistente.
-      Suas próximas conversas vão ser cirúrgicas, não genéricas.
-    </p>
+    <p class="export-lead">ESSE DIAGNÓSTICO É SEU</p>
 
     <div class="export-actions">
       <button class="btn-export pdf" onclick="exportPDF()">
@@ -705,6 +723,11 @@
       </button>
     </div>
 
+    <p class="export-body">
+      Exporte o laudo em <strong>.MD</strong> e cole em qualquer assistente.
+      Suas próximas conversas vão ser cirúrgicas, não genéricas.
+    </p>
+
     <div class="export-features">
       <div class="export-feat">
         <span class="feat-icon">PDF</span>
@@ -719,11 +742,106 @@
 </div>
 
 </div>
+
+<!-- WAITLIST MODAL -->
+<div class="waitlist-modal" id="waitlistModal">
+  <div class="waitlist-content">
+    <div class="waitlist-header">
+      <span class="waitlist-title">LISTA DE ESPERA</span>
+      <button class="waitlist-close" id="waitlistClose">✕</button>
+    </div>
+    <div class="waitlist-body" id="waitlistFormArea">
+      <p class="waitlist-intro">Seja dos primeiros a conversar diretamente com o Steve. Entre na lista e te aviso quando abrir.</p>
+      <input type="text" class="waitlist-input" id="waitlistName" placeholder="Seu nome" autocomplete="name">
+      <input type="email" class="waitlist-input" id="waitlistEmail" placeholder="seu@email.com" autocomplete="email">
+      <input type="hidden" name="_source" value="waitlist">
+      <button class="waitlist-submit" id="waitlistSubmitBtn">Quero entrar na lista</button>
+      <p class="waitlist-disclaimer">Sem spam. So te aviso quando o Steve estiver pronto.</p>
+    </div>
+    <div class="waitlist-success" id="waitlistSuccess" style="display:none">
+      <div class="waitlist-success-icon">✓</div>
+      <p class="waitlist-success-text">Pronto, voce esta na lista. Te aviso em breve.</p>
+    </div>
+  </div>
+</div>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="../js/shared.js"></script>
 <script src="../js/dashboard.js"></script>
-</body>
-</html>
+<script>
+(function() {
+  // Hamburger menu toggle
+  var hamburger = document.getElementById('hamburger');
+  var menuOverlay = document.getElementById('menuOverlay');
+  var menuClose = document.getElementById('menuClose');
+  if (hamburger && menuOverlay && menuClose) {
+    hamburger.addEventListener('click', function() {
+      hamburger.classList.toggle('active');
+      menuOverlay.classList.toggle('open');
+    });
+    menuClose.addEventListener('click', function() {
+      hamburger.classList.remove('active');
+      menuOverlay.classList.remove('open');
+    });
+    menuOverlay.querySelectorAll('.menu-link').forEach(function(link) {
+      link.addEventListener('click', function() {
+        hamburger.classList.remove('active');
+        menuOverlay.classList.remove('open');
+      });
+    });
+  }
 
+  // Waitlist modal
+  function openWaitlistModal() {
+    document.getElementById('waitlistModal').classList.add('open');
+    document.getElementById('waitlistFormArea').style.display = '';
+    document.getElementById('waitlistSuccess').style.display = 'none';
+    document.getElementById('waitlistName').value = '';
+    document.getElementById('waitlistEmail').value = '';
+    var btn = document.getElementById('waitlistSubmitBtn');
+    btn.disabled = false;
+    btn.textContent = 'Quero entrar na lista';
+  }
+  function closeWaitlistModal() {
+    document.getElementById('waitlistModal').classList.remove('open');
+  }
+  function submitWaitlist() {
+    var name = (document.getElementById('waitlistName').value || '').trim();
+    var email = (document.getElementById('waitlistEmail').value || '').trim();
+    if (!name || !email) return;
+    var btn = document.getElementById('waitlistSubmitBtn');
+    btn.disabled = true;
+    btn.textContent = 'Enviando...';
+    fetch('https://formspree.io/f/xykajyjb', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify({ nome: name, email: email, _source: 'waitlist', assunto: 'Lista de espera - Steve Chat' })
+    })
+    .then(function(r) { return r.json().then(function(b) { return { ok: r.ok, body: b }; }); })
+    .then(function(res) {
+      if (res.ok) {
+        document.getElementById('waitlistFormArea').style.display = 'none';
+        document.getElementById('waitlistSuccess').style.display = '';
+      } else {
+        btn.disabled = false;
+        btn.textContent = 'Tentar novamente';
+      }
+    })
+    .catch(function() {
+      btn.disabled = false;
+      btn.textContent = 'Tentar novamente';
+    });
+  }
+
+  // Expose openWaitlistModal globally (called by the "Cadastre" span onclick)
+  window.openWaitlistModal = openWaitlistModal;
+
+  document.getElementById('waitlistClose').addEventListener('click', closeWaitlistModal);
+  document.getElementById('waitlistModal').addEventListener('click', function(e) {
+    if (e.target === this) closeWaitlistModal();
+  });
+  document.getElementById('waitlistSubmitBtn').addEventListener('click', submitWaitlist);
+})();
+</script>
 </body>
 </html>

@@ -404,7 +404,7 @@ p { color: var(--text-second); font-weight: 300; line-height: 1.6; }
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
+  justify-content: center;
   align-items: flex-start;
   padding: 120px 8vw 10vh;
   position: relative;
@@ -426,18 +426,15 @@ p { color: var(--text-second); font-weight: 300; line-height: 1.6; }
 
 .hero > * { position: relative; z-index: 2; }
 
-/* Tag — top-left, subtle */
+/* Tag — flows above h1 inside the bottom-aligned flex column */
 .hero-tag {
-  position: absolute;
-  top: 100px;
-  left: 8vw;
-  z-index: 2;
   font-size: 0.7rem;
   letter-spacing: 0.15em;
   color: #2EE8B0;
   opacity: 0.8;
   text-transform: uppercase;
   font-family: var(--font-body);
+  margin-bottom: 10px;
 }
 
 .hero h1 {

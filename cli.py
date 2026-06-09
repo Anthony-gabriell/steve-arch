@@ -25,7 +25,7 @@ def print_welcome(console: Console) -> None:
     """Exibe o painel inicial com informações do sistema."""
     welcome_text = Text()
     welcome_text.append("Arquiteto de Soluções.\n", style="italic cyan")
-    welcome_text.append("Funcionar é o começo. Escalar é o objetivo.\n\n", style="bold white")
+    welcome_text.append("Escale com inteligência.\n\n", style="bold white")
     welcome_text.append("Comandos disponíveis:\n", style="bold yellow")
 
     for cmd, desc in COMMANDS.items():

@@ -405,27 +405,42 @@ function exportPDF() {
   }
 
   function renderTabelaStack(stack) {
-    fileteNeon(M.left, y - 1, 6);
-    setDrawColor(HAIR); doc.line(M.left + 7, y - 1, M.right, y - 1);
-    setFont("bold", 8.5); setColor(INK);
-    const cols = { comp: 0, ferr: 55, custo: 115, fam: 150 };
-    doc.text("COMPONENTE", M.left + cols.comp, y + 4);
-    doc.text("FERRAMENTA", M.left + cols.ferr, y + 4);
-    doc.text("CUSTO", M.left + cols.custo, y + 4);
-    doc.text("FAM", M.left + cols.fam, y + 4);
-    y += 9;
-    setDrawColor(HAIR); doc.line(M.left, y - 2, M.right, y - 2);
-    setFont("normal", 8.5); setColor(BODY);
-    y += 1.5;
-    for (const item of stack) {
-      need(LH);
-      doc.text((item.componente || "").substring(0, 28), M.left + cols.comp, y);
-      doc.text((item.ferramenta || "").substring(0, 32), M.left + cols.ferr, y);
-      doc.text(item.custo_estimado || "R$ 0", M.left + cols.custo, y);
-      doc.text(item.familiar ? "sim" : "nao", M.left + cols.fam, y);
-      y += LH;
+  y += 4;
+  fileteNeon(M.left, y - 1, 6);
+  setDrawColor(HAIR);
+  doc.line(M.left + 7, y - 1, M.right, y - 1);
+
+  setFont("bold", 8.5);
+  setColor(INK);
+  const cols = { comp: 0, ferr: 58, custo: 120 };
+  const wCusto = (M.right - M.left) - cols.custo;
+  doc.text("COMPONENTE", M.left + cols.comp, y + 4);
+  doc.text("FERRAMENTA", M.left + cols.ferr, y + 4);
+  doc.text("CUSTO", M.left + cols.custo, y + 4);
+  y += 9;
+  setDrawColor(HAIR);
+  doc.line(M.left, y - 2, M.right, y - 2);
+
+  setFont("normal", 8.5);
+  setColor(BODY);
+  y += 1.5;
+  for (const item of stack) {
+    const comp = (item.componente || "").substring(0, 28);
+    const ferr = (item.ferramenta || "").substring(0, 34);
+    const custo = item.custo_estimado || "R$ 0";
+    const custoLinhas = doc.splitTextToSize(custo, wCusto);
+    const nLinhas = custoLinhas.length;
+    need(LH * nLinhas);
+    setFont("normal", 8.5);
+    setColor(BODY);
+    doc.text(comp, M.left + cols.comp, y);
+    doc.text(ferr, M.left + cols.ferr, y);
+    for (let i = 0; i < nLinhas; i++) {
+      doc.text(custoLinhas[i], M.left + cols.custo, y + i * LH);
     }
+    y += LH * nLinhas;
   }
+}
 
   function renderProjecao() {
     tituloSecao("4", "Projecao financeira");
@@ -624,7 +639,6 @@ function exportPDF() {
     y += 1; paragrafo(fechamento);
     y += 3;
     setFont("italic", 9); setColor(MUTE);
-    paragrafo("Este documento e um ativo tecnico. Exporte o Markdown e anexe a qualquer assistente de IA para aprofundamento.");
   }
 
   renderCapa();

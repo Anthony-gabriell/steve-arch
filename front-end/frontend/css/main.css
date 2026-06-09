@@ -878,9 +878,10 @@ p { color: var(--text-second); font-weight: 300; line-height: 1.6; }
   .navbar {
     padding: 0 16px;
   }
-  /* Hide the animated SVG text; image icon alone identifies the brand */
-  .nav-logo-link svg {
-    display: none;
+  /* Scale down the animated SVG so logo + CTA + hamburger fit on small screens */
+  .atech-logo-svg {
+    width: 130px;
+    height: auto;
   }
   /* Keep the CTA on one line and vertically centred within the 72px navbar */
   .btn-cta-nav {

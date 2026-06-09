@@ -1,0 +1,16 @@
+{
+  "rewrites": [
+    { "source": "/",                    "destination": "/html/index.html" },
+    { "source": "/index.html",          "destination": "/html/index.html" },
+    { "source": "/contato",             "destination": "/html/contato.html" },
+    { "source": "/contato.html",        "destination": "/html/contato.html" },
+    { "source": "/produtos",            "destination": "/html/produtos.html" },
+    { "source": "/produtos.html",       "destination": "/html/produtos.html" },
+    { "source": "/onboarding",          "destination": "/html/onboarding.html" },
+    { "source": "/onboarding.html",     "destination": "/html/onboarding.html" },
+    { "source": "/minhas-analises",     "destination": "/html/minhas-analises.html" },
+    { "source": "/minhas-analises.html","destination": "/html/minhas-analises.html" },
+    { "source": "/ajustar",             "destination": "/html/ajustar.html" },
+    { "source": "/ajustar.html",        "destination": "/html/ajustar.html" }
+  ]
+}

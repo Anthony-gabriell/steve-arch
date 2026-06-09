@@ -415,14 +415,46 @@
       .chat-cronograma-wrap { grid-template-columns: 1fr; }
       .chat-bubble { max-width: 100%; }
     }
+    /* ---- 768px: tablet / large phone ---- */
+    @media (max-width: 768px) {
+      /* hero-chart: the 1100px rule sets height:auto which collapses the
+         absolute-positioned SVG; restore an explicit height here */
+      .hero-chart { height: 200px; }
+      /* next-step: wrap so text doesn't force horizontal overflow */
+      .next-step { flex-wrap: wrap; row-gap: 8px; }
+      .ns-divider { display: none; }
+      /* push the body text to its own full-width row, CTAs stay on row 1 */
+      .ns-text { flex-basis: 100%; order: 3; }
+    }
+
+    /* ---- 600px: phone-width fixes ---- */
     @media (max-width: 600px) {
+      /* Dashboard navbar: hide decorative labels + duplicate action button;
+         hamburger overlay still has "Analisar solução" */
+      #navDiagNum, .nav-meta .live { display: none; }
+      .nav-meta .btn-nav.primary { display: none; }
+      /* hide SVG logo text; inline style:display:block overridden with !important */
+      .nav-logo svg { display: none !important; }
+      /* Chat mock */
       .chat-mock-body { padding: 18px 14px; }
       .chat-bubble { font-size: 0.82rem; padding: 10px 12px; }
       .chat-avatar { width: 42px; font-size: 0.5rem; }
+      /* Export */
       .export-inner { padding: 44px 22px; }
       .export-actions { flex-direction: column; }
       .btn-export { width: 100%; justify-content: center; }
       .export-features { grid-template-columns: 1fr; gap: 10px; }
+      /* hero-chart: explicit height (768px rule overrides the broken height:auto
+         from the 1100px breakpoint; narrow phones get a shorter chart) */
+      .hero-chart { height: 160px; }
+      /* chart-header: tighten insets on narrow screens */
+      .chart-header { top: 10px; left: 14px; right: 14px; }
+      .chart-legend { flex-wrap: wrap; gap: 8px; }
+      /* next-step: tighter horizontal padding */
+      .next-step { padding: 12px 14px; }
+      /* Financial: smaller receita and stacked modelo */
+      .fin-receita { font-size: 1.4rem; }
+      .fin-modelo { flex-direction: column; align-items: flex-start; gap: 10px; }
     }
   </style>
 </head>

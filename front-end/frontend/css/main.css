@@ -871,6 +871,27 @@ p { color: var(--text-second); font-weight: 300; line-height: 1.6; }
 }
 
 /* ============================
+   MOBILE <= 600px
+   ============================ */
+@media (max-width: 600px) {
+  /* Reduce navbar side padding so logo + CTA + hamburger fit */
+  .navbar {
+    padding: 0 16px;
+  }
+  /* Hide the animated SVG text; image icon alone identifies the brand */
+  .nav-logo-link svg {
+    display: none;
+  }
+  /* Keep the CTA on one line and vertically centred within the 72px navbar */
+  .btn-cta-nav {
+    white-space: nowrap;
+    padding: 7px 14px;
+    font-size: 0.72rem;
+    letter-spacing: 0.05em;
+  }
+}
+
+/* ============================
    ANIMATED NAVBAR LOGO
    ============================ */
 .atech-logo-svg {

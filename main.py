@@ -21,8 +21,11 @@ app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 # CORS: permite o frontend local chamar o backend
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
+    allow_origins=[
+        "https://steve-arch.vercel.app",
+        "http://localhost:5500",
+        "http://127.0.0.1:5500",
+    ],
     allow_methods=["*"],
     allow_headers=["*"],
 )

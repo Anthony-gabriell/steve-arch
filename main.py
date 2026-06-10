@@ -23,13 +23,14 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "https://steve-arch.vercel.app",
+        "https://www.stevearch.com.br",
+        "https://stevearch.com.br",
         "http://localhost:5500",
         "http://127.0.0.1:5500",
     ],
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
 app.include_router(router, prefix="/api/v1")
 
 

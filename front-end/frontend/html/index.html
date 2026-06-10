@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Steve Arch — O arquiteto de soluções que te ajuda a escalar. Construa rápido. Escale com inteligência.">
+  <meta name="description" content="Steve Arch: O arquiteto de soluções que te ajuda a escalar. Construa rápido. Escale com inteligência.">
   <title>Steve Arch</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -25,6 +25,83 @@
          lets the html element still scroll; lock both on mobile only */
       html, body { overflow-x: hidden; }
     }
+
+/* layout base do hero em 2 colunas */
+.hero-inner {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  gap: 48px;
+  align-items: center;
+  max-width: 1240px;
+  margin: 0 auto;
+  width: 100%;
+  position: relative;
+  z-index: 2;
+}
+.hero-text { text-align: left; }
+
+/* título menor, 2 linhas, com destaque */
+.hero-inner #hero-title {
+  font-size: clamp(1.7rem, 3vw, 2.4rem);
+  line-height: 1.15;
+  font-weight: 350;
+  margin-bottom: 18px;
+  white-space: nowrap;
+}
+.hero-steve-list {
+  list-style: none;
+  padding: 0;
+  margin: 32px 0 28px;
+  max-width: 520px;
+}
+.hero-steve-list li {
+  position: relative;
+  padding-left: 24px;
+  margin-bottom: 12px;
+  color: rgba(255,255,255,0.78);
+  font-size: 0.98rem;
+  line-height: 1.45;
+}
+.hero-steve-list li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.5em;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #2EE8B0;
+  box-shadow: 0 0 8px rgba(46,232,176,0.6);
+}
+.hero-preview { width: 100%; }
+.browser-frame {
+  border: 1px solid rgba(46,232,176,0.25);
+  border-radius: 12px;
+  overflow: hidden;
+  background: #0a0e10;
+  box-shadow: 0 24px 60px rgba(0,0,0,0.55), 0 0 40px rgba(46,232,176,0.08);
+}
+.browser-bar {
+  display: flex; gap: 7px; padding: 11px 14px;
+  background: rgba(255,255,255,0.03);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.browser-dot { width: 11px; height: 11px; border-radius: 50%; background: rgba(255,255,255,0.18); }
+.browser-dot:first-child { background: rgba(46,232,176,0.5); }
+.browser-screen { position: relative; width: 100%; aspect-ratio: 16 / 9; background: #060809; }
+.preview-shot {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  object-fit: contain; object-position: top left;
+  opacity: 0; transition: opacity 0.8s ease;
+}
+.preview-shot.is-active { opacity: 1; }
+
+@media (max-width: 900px) {
+  .hero-inner { grid-template-columns: 1fr; gap: 32px; }
+  .hero-text { text-align: center; }
+  .hero-steve-list { margin-left: auto; margin-right: auto; }
+  .hero-preview { max-width: 520px; margin: 0 auto; }
+}
   </style>
 </head>
 <body>
@@ -70,12 +147,39 @@
     </div>
     <main>
       <section class="hero" aria-labelledby="hero-title">
-        <span class="hero-tag fade-in">Construa rápido. Escale com inteligência</span>
-        <h1 id="hero-title" class="fade-in">Arquitetura escalável<br>Diagnóstico preciso</h1>
-        <p class="hero-subtitle fade-in">Descreva sua solução. O Steve te mostra o caminho para crescer.</p>
-        <div class="hero-actions fade-in">
-          <a href="/onboarding" class="btn btn--primary">Analisar minha solução</a>
-          <a href="/contato" class="btn btn--outline">Falar com a equipe</a>
+        <div class="hero-inner">
+          <div class="hero-text">
+            <span class="hero-tag fade-in">Construa rápido. Escale com inteligência</span>
+            <h1 id="hero-title" class="fade-in">Arquitetura escalável<br>diagnóstico preciso</h1>
+            <p class="hero-subtitle fade-in">O Steve é seu arquiteto de soluções.</br> Você descreve o que tá construindo, ele faz o resto:</p>
+              <ul class="hero-steve-list fade-in delay-1">
+                <li>Diagnóstico preciso da sua solução</li>
+                <li>Gargalos que vão travar o crescimento</li>
+                <li>Riscos técnicos em potencial</li>
+                <li>A stack certa para o seu momento</li>
+                <li>Projeção financeira realista</li>
+                <li>Modelo de negócio sugerido</li>
+                <li>Documento técnico em PDF para te acompanhar</li>
+              </ul>
+            <div class="hero-actions fade-in">
+              <a href="/onboarding" class="btn btn--primary">Analisar minha solução</a>
+              <a href="/contato" class="btn btn--outline">Falar com a equipe</a>
+            </div>
+          </div>
+          <div class="hero-preview fade-in delay-2" aria-hidden="true">
+            <div class="browser-frame">
+              <div class="browser-bar">
+                <span class="browser-dot"></span>
+                <span class="browser-dot"></span>
+                <span class="browser-dot"></span>
+              </div>
+              <div class="browser-screen">
+                <img class="preview-shot is-active" src="../assets/dashnome.webp" alt="">
+                <img class="preview-shot" src="../assets/diagdash.webp" alt="">
+                <img class="preview-shot" src="../assets/finadash.webp" alt="">
+              </div>
+            </div>
+          </div>
         </div>
         <div class="hero-particles-wrap">
           <canvas id="hero-particles" aria-hidden="true"></canvas>
@@ -257,6 +361,18 @@
     requestAnimationFrame(draw);
   }
   init(); draw(); window.addEventListener('resize',function(){resize();});
+})();
+</script>
+<script>
+(function() {
+  var shots = document.querySelectorAll('.preview-shot');
+  if (shots.length < 2) return;
+  var i = 0;
+  setInterval(function() {
+    shots[i].classList.remove('is-active');
+    i = (i + 1) % shots.length;
+    shots[i].classList.add('is-active');
+  }, 4000);
 })();
 </script>
 </body>

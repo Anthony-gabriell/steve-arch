@@ -249,7 +249,7 @@ ADDITIONAL FIELD GUIDANCE:
 # ─── ENDPOINTS ────────────────────────────────────────────────────────────────
 
 @router.post("/diagnostico", response_class=JSONResponse)
-@limiter.limit("15/day")
+@limiter.limit("1/day")
 async def gerar_diagnostico(request: Request, data: OnboardingData):
     """
     Recebe as respostas do onboarding e retorna o diagnóstico completo do Steve Arch.

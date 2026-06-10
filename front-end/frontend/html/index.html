@@ -97,9 +97,11 @@
 .preview-shot.is-active { opacity: 1; }
 
 @media (max-width: 900px) {
-  .hero-inner { grid-template-columns: 1fr; gap: 32px; }
+  .hero-inner { grid-template-columns: 1fr; gap: 32px; padding: 0 20px; }
   .hero-text { text-align: center; }
-  .hero-steve-list { margin-left: auto; margin-right: auto; }
+  .hero-inner #hero-title { white-space: normal; font-size: clamp(1.6rem, 7vw, 2.2rem); }
+  .hero-steve-list { margin-left: 0; margin-right: auto; text-align: left; }
+  .hero-steve-list li { text-align: left; }
   .hero-preview { max-width: 520px; margin: 0 auto; }
 }
   </style>

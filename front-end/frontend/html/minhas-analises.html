@@ -6,7 +6,7 @@
   <title>Steve Arch | Diagnóstico</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@200;300;400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="icon" type="image/png" href="../Image/logo2.png">
   <script defer src="../js/neural-bg.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -924,8 +924,6 @@
       btn.textContent = 'Tentar novamente';
     });
   }
-
-  // Expose openWaitlistModal globally (called by the "Cadastre" span onclick)
   window.openWaitlistModal = openWaitlistModal;
 
   // Nova análise confirmation
@@ -952,20 +950,13 @@
   document.getElementById('confirmNovaContinuar').addEventListener('click', function() {
     document.getElementById('confirmNovaAnaliseModal').classList.remove('open');
     limparCacheAnalise();
-    window.location.href = 'onboarding.html';
+    window.location.href = '/onboarding';
   });
   document.getElementById('confirmNovaAnaliseModal').addEventListener('click', function(e) {
     if (e.target === this) this.classList.remove('open');
   });
 
   document.getElementById('waitlistClose').addEventListener('click', closeWaitlistModal);
-  document.getElementById('waitlistModal').addEventListener('click', function(e) {
-    if (e.target === this) closeWaitlistModal();
-  });
-  document.getElementById('waitlistSubmitBtn').addEventListener('click', submitWaitlist);
-})();
-
-document.getElementById('waitlistClose').addEventListener('click', closeWaitlistModal);
   document.getElementById('waitlistModal').addEventListener('click', function(e) {
     if (e.target === this) closeWaitlistModal();
   });
@@ -1020,7 +1011,8 @@ document.getElementById('waitlistClose').addEventListener('click', closeWaitlist
   document.getElementById('feedbackSubmitBtn').addEventListener('click', submitFeedback);
 })();
 </script>
-
+</body>
+</html>
 </script>
 </body>
 </html>

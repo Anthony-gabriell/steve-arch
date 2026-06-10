@@ -249,11 +249,11 @@ ADDITIONAL FIELD GUIDANCE:
 # ─── ENDPOINTS ────────────────────────────────────────────────────────────────
 
 @router.post("/diagnostico", response_class=JSONResponse)
-@limiter.limit("3/day")
+@limiter.limit("1/day")
 async def gerar_diagnostico(request: Request, data: OnboardingData):
     """
     Recebe as respostas do onboarding e retorna o diagnóstico completo do Steve Arch.
-    Rate limit: 3 diagnósticos por IP por dia.
+    Rate limit: 1 diagnósticos por IP por dia.
     """
     try:
         prompt = build_diagnostic_prompt(data)

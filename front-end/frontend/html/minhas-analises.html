@@ -345,6 +345,13 @@
     .cronograma-reset { background: none; border: none; color: #5A6560; font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; letter-spacing: 0.14em; text-transform: uppercase; cursor: pointer; transition: color 0.2s; }
     .cronograma-reset:hover { color: #2EE8B0; }
 
+    /* FEEDBACK BOX */
+    .feedback-box { max-width: 720px; margin: 0 auto 28px; text-align: center; }
+    .feedback-cta { display: inline-flex; align-items: center; gap: 10px; padding: 16px 30px; background: rgba(46,232,176,0.06); border: 1px solid rgba(46,232,176,0.3); border-radius: 4px; cursor: pointer; transition: all 0.25s; font-family: 'JetBrains Mono', monospace; font-size: 0.74rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent); }
+    .feedback-cta:hover { background: rgba(46,232,176,0.12); box-shadow: 0 0 20px rgba(46,232,176,0.2); transform: translateY(-2px); }
+    .feedback-textarea { width: 100%; min-height: 110px; background: #060809; border: 1px solid rgba(46,232,176,0.18); border-radius: 2px; padding: 13px 15px; color: #F8F9FA; font-family: 'Outfit', sans-serif; font-size: 0.92rem; outline: none; resize: none; transition: border-color 0.2s; }
+    .feedback-textarea:focus { border-color: #2EE8B0; }
+
     /* CHAT CTA */
     .chat-cta-wrap { display: flex; justify-content: center; margin-top: 24px; }
     .btn-chat-cta { display: inline-flex; align-items: center; gap: 10px; padding: 14px 28px; background: linear-gradient(135deg, #2EE8B0, #00D1FF); color: #060809; font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; border: none; border-radius: 3px; cursor: pointer; transition: all 0.25s; }
@@ -742,6 +749,11 @@
 
   </div>
 
+    <div class="feedback-box">
+  <button class="feedback-cta" onclick="openFeedbackModal()">Gostou? Deixe sua opinião clicando aqui</button>
+    </div>
+
+
   <!-- BLOCO: EXPORTAÇÃO ESTRATÉGICA (fechamento do dashboard) -->
 <div class="block export-block">
   <div class="export-inner">
@@ -820,6 +832,27 @@
     <div class="waitlist-success" id="waitlistSuccess" style="display:none">
       <div class="waitlist-success-icon">✓</div>
       <p class="waitlist-success-text">Pronto, voce esta na lista. Te aviso em breve.</p>
+    </div>
+  </div>
+</div>
+
+<!-- FEEDBACK MODAL -->
+<div class="waitlist-modal" id="feedbackModal">
+  <div class="waitlist-content">
+    <div class="waitlist-header">
+      <span class="waitlist-title">SUA OPINIÃO</span>
+      <button class="waitlist-close" id="feedbackClose">✕</button>
+    </div>
+    <div class="waitlist-body" id="feedbackFormArea">
+      <p class="waitlist-intro">Esse diagnóstico te deu clareza sobre como escalar, ou usar o ChatGPT direto teria sido igual? Sua resposta honesta me ajuda demais.</p>
+      <textarea class="feedback-textarea" id="feedbackText" placeholder="O que você achou? Foi útil? O que faltou?"></textarea>
+      <input type="email" class="waitlist-input" id="feedbackEmail" placeholder="Seu email (opcional, se quiser que eu responda)" autocomplete="email">
+      <button class="waitlist-submit" id="feedbackSubmitBtn">Enviar opinião</button>
+      <p class="waitlist-disclaimer">Leio todos. Seu feedback molda o que o Steve vira.</p>
+    </div>
+    <div class="waitlist-success" id="feedbackSuccess" style="display:none">
+      <div class="waitlist-success-icon">✓</div>
+      <p class="waitlist-success-text">Valeu demais pela opinião. É isso que faz o Steve melhorar.</p>
     </div>
   </div>
 </div>
@@ -931,6 +964,63 @@
   });
   document.getElementById('waitlistSubmitBtn').addEventListener('click', submitWaitlist);
 })();
+
+document.getElementById('waitlistClose').addEventListener('click', closeWaitlistModal);
+  document.getElementById('waitlistModal').addEventListener('click', function(e) {
+    if (e.target === this) closeWaitlistModal();
+  });
+  document.getElementById('waitlistSubmitBtn').addEventListener('click', submitWaitlist);
+
+  // Feedback modal
+  function openFeedbackModal() {
+    document.getElementById('feedbackModal').classList.add('open');
+    document.getElementById('feedbackFormArea').style.display = '';
+    document.getElementById('feedbackSuccess').style.display = 'none';
+    document.getElementById('feedbackText').value = '';
+    document.getElementById('feedbackEmail').value = '';
+    var btn = document.getElementById('feedbackSubmitBtn');
+    btn.disabled = false;
+    btn.textContent = 'Enviar opinião';
+  }
+  window.openFeedbackModal = openFeedbackModal;
+  function closeFeedbackModal() {
+    document.getElementById('feedbackModal').classList.remove('open');
+  }
+  function submitFeedback() {
+    var texto = (document.getElementById('feedbackText').value || '').trim();
+    var email = (document.getElementById('feedbackEmail').value || '').trim();
+    if (!texto) return;
+    var btn = document.getElementById('feedbackSubmitBtn');
+    btn.disabled = true;
+    btn.textContent = 'Enviando...';
+    fetch('https://formspree.io/f/xykajyjb', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify({ feedback: texto, email: email, _source: 'feedback', assunto: 'Feedback do diagnostico' })
+    })
+    .then(function(r) { return r.json().then(function(b) { return { ok: r.ok, body: b }; }); })
+    .then(function(res) {
+      if (res.ok) {
+        document.getElementById('feedbackFormArea').style.display = 'none';
+        document.getElementById('feedbackSuccess').style.display = '';
+      } else {
+        btn.disabled = false;
+        btn.textContent = 'Tentar novamente';
+      }
+    })
+    .catch(function() {
+      btn.disabled = false;
+      btn.textContent = 'Tentar novamente';
+    });
+  }
+  document.getElementById('feedbackClose').addEventListener('click', closeFeedbackModal);
+  document.getElementById('feedbackModal').addEventListener('click', function(e) {
+    if (e.target === this) closeFeedbackModal();
+  });
+  document.getElementById('feedbackSubmitBtn').addEventListener('click', submitFeedback);
+})();
+</script>
+
 </script>
 </body>
 </html>

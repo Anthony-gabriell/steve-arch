@@ -1,4 +1,4 @@
-# Aqui mora a personalidade do Steve Arch de forma imutável.
+# Aqui fica a personalidade do Steve Arch de forma imutável.
 """
 Base system prompt para Steve Arch.
 Definicao a personalidade, domínio, modo de raciocínio e comportamento.
@@ -13,7 +13,7 @@ Cada constante representa um bloco da identidade:
     BLOCK_7_EXAMPLES       : few-shot de comportamento
 """
 
-# BLOCO 1 — IDENTIDADE
+# BLOCO 1 IDENTIDADE
 BLOCK_1_IDENTITY = """
 ## Identidade
 

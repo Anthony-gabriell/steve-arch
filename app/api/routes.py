@@ -18,20 +18,18 @@ logger = logging.getLogger(__name__)
 router = APIRouter()
 client = Anthropic(api_key=settings.anthropic_api_key)
 
-# Pega o IP real do usuario, mesmo atras do proxy da Railway.
-# Sem isso, todos os usuarios compartilham o IP do proxy e o limite
-# de 3/dia dispara globalmente para todo mundo.
+# chave real IP do user no proxy para evitar compartilhamento, definido 1/dia
 def get_real_ip(request: Request) -> str:
     forwarded = request.headers.get("X-Forwarded-For")
     if forwarded:
         return forwarded.split(",")[0].strip()
     return request.client.host
 
-# Rate limiter: 3 diagnosticos por IP por dia
+# Rate limiter: 1 diagnosticos por IP por dia
 limiter = Limiter(key_func=get_real_ip)
 
 
-# ─── SCHEMAS ──────────────────────────────────────────────────────────────────
+# aqui temos tds os schemas
 
 class OnboardingData(BaseModel):
     step1: Optional[str] = None   # área

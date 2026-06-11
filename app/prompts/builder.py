@@ -28,7 +28,7 @@ def build_system_prompt(
 
     parts = [STEVE_BASE_SYSTEM_PROMPT]
 
-    # Transparência de raciocínio — Steve mostra o raciocínio antes da resposta
+    # Transparência de raciocínio Steve mostra o raciocínio antes da resposta
     if include_reasoning_transparency:
         parts.append(REASONING_TRANSPARENCY_FRAGMENT)
 

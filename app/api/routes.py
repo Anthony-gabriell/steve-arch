@@ -244,10 +244,10 @@ ADDITIONAL FIELD GUIDANCE:
 - proximos_passos_fila: generate 4 to 6 sequential next steps. Each step unlocks the next. The first step must match proximo_passo in substance. Each step has a clear completion criterion."""
 
 
-# ─── ENDPOINTS ────────────────────────────────────────────────────────────────
+# ENDPOINTS
 
 @router.post("/diagnostico", response_class=JSONResponse)
-@limiter.limit("3/day")
+@limiter.limit("1/day")
 async def gerar_diagnostico(request: Request, data: OnboardingData):
     """
     Recebe as respostas do onboarding e retorna o diagnóstico completo do Steve Arch.

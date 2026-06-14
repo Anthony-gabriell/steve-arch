@@ -1,4 +1,4 @@
-# Aqui fica a personalidade do Steve Arch de forma imutável.
+# aqui fica a personalidade do Steve Arch
 """
 Base system prompt para Steve Arch.
 Definicao a personalidade, domínio, modo de raciocínio e comportamento.
@@ -506,7 +506,7 @@ Rode uma análise das queries mais lentas do seu banco.
 não de arquitetura de serviços.
 """
 
-# Combinação dos 7 blocos em ordem
+# combinacao dos 7 blocos em ordem
 STEVE_BASE_SYSTEM_PROMPT = "\n\n".join([
     BLOCK_1_IDENTITY,
     BLOCK_2_PERSONALITY,

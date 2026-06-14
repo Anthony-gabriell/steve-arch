@@ -9,9 +9,8 @@ Fragmentos disponíveis:
     AREA_CONTEXT_FRAGMENT           : injeta especificidades da área do usuário
 """
 
-# ─── FRAGMENT 1 — TRANSPARÊNCIA DE RACIOCÍNIO ───────────────────────────────
+# FRAGMENT 1 TRANSPARÊNCIA DE RACIOCÍNIO
 # Objetivo: Forçar o Steve a mostrar o raciocínio antes da resposta final.
-# Mantido em inglês para melhor performance do modelo.
 
 REASONING_TRANSPARENCY_FRAGMENT = """
 ## Reasoning Protocol
@@ -27,7 +26,7 @@ Before providing your final response, explicitly show your step-by-step reasonin
   the reasoning IS part of the value delivered.
 """
 
-# ─── FRAGMENT 2 — INSTRUÇÕES DE FERRAMENTAS ─────────────────────────────────
+#  FRAGMENT 2 INSTRUÇÕES DE FERRAMENTAS
 # Objetivo: Instruir o Steve sobre quando e como usar cada ferramenta disponível.
 
 TOOL_USAGE_FRAGMENT = """

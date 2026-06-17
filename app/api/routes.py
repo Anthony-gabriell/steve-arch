@@ -16,10 +16,12 @@ from app.core.config import settings
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
-client = OpenAI(
-    api_key=settings.openrouter_api_key,
-    base_url="https://openrouter.ai/api/v1",
-)
+
+def get_client() -> OpenAI:
+    return OpenAI(
+        api_key=settings.openrouter_api_key,
+        base_url="https://openrouter.ai/api/v1",
+    )
 
 # chave real IP do user no proxy para evitar compartilhamento, definido 1/dia
 def get_real_ip(request: Request) -> str:
@@ -259,6 +261,7 @@ async def gerar_diagnostico(request: Request, data: OnboardingData):
     try:
         prompt = build_diagnostic_prompt(data)
 
+        client = get_client()
         response = client.chat.completions.create(
             model=settings.model_name,
             max_tokens=4000,

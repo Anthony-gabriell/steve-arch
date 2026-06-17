@@ -4,6 +4,7 @@ class Settings(BaseSettings):
     # API Cada atributo é uma variável que será lida do .env
     openrouter_api_key: str | None = None # deixando opcional
     model_name: str = "nousresearch/hermes-3-llama-3.1-405b:free"
+    llm_provider: str = "openrouter"
     max_tokens: int = 4096
     temperature: float = 0.7
 

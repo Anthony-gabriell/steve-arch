@@ -2,7 +2,7 @@ from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
     # API Cada atributo é uma variável que será lida do .env
-    OPENROUTER_API_KEY: str | None = None # deixando opcional
+    openrouter_api_key: str | None = None # deixando opcional
     model_name: str = "nousresearch/hermes-3-llama-3.1-405b:free"
     max_tokens: int = 4096
     temperature: float = 0.7

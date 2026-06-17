@@ -261,15 +261,23 @@ async def gerar_diagnostico(request: Request, data: OnboardingData):
     try:
         prompt = build_diagnostic_prompt(data)
 
+        def get_client() -> OpenAI:
+            if not settings.openrouter_api_key:
+                raise RuntimeError(
+                    "OPENROUTER_API_KEY ausente no ambiente do Railway. "
+                    "Verifique Variables e faça redeploy."
+                )
+            return OpenAI(
+                api_key=settings.openrouter_api_key,
+                base_url="https://openrouter.ai/api/v1",
+            )
+
         client = get_client()
         response = client.chat.completions.create(
             model=settings.model_name,
             max_tokens=4000,
             messages=[
-                {
-                    "role": "user",
-                    "content": prompt
-                }
+                {"role": "user", "content": prompt}
             ]
         )
 

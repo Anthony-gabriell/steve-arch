@@ -4,6 +4,11 @@ venv/
 env/
 ENV/
 *.egg-info/
+.env
+.env.*
+!.env.example
+data/sessions/
+data/vectorstore/
 
 # itens em cache py
 __pycache__/

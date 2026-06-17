@@ -8,7 +8,7 @@ from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from typing import Optional, List
-from anthropic import Anthropic
+from openai import OpenAI
 from slowapi import Limiter
 from slowapi.util import get_remote_address
 
@@ -16,7 +16,10 @@ from app.core.config import settings
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
-client = Anthropic(api_key=settings.anthropic_api_key)
+client = OpenAI(
+    api_key=settings.openrouter_api_key,
+    base_url="https://openrouter.ai/api/v1",
+)
 
 # chave real IP do user no proxy para evitar compartilhamento, definido 1/dia
 def get_real_ip(request: Request) -> str:
@@ -247,7 +250,7 @@ ADDITIONAL FIELD GUIDANCE:
 # ENDPOINTS
 
 @router.post("/diagnostico", response_class=JSONResponse)
-@limiter.limit("1/day")
+@limiter.limit("3/day")
 async def gerar_diagnostico(request: Request, data: OnboardingData):
     """
     Recebe as respostas do onboarding e retorna o diagnóstico completo do Steve Arch.
@@ -256,7 +259,7 @@ async def gerar_diagnostico(request: Request, data: OnboardingData):
     try:
         prompt = build_diagnostic_prompt(data)
 
-        response = client.messages.create(
+        response = client.chat.completions.create(
             model=settings.model_name,
             max_tokens=4000,
             messages=[
@@ -267,7 +270,7 @@ async def gerar_diagnostico(request: Request, data: OnboardingData):
             ]
         )
 
-        raw_text = response.content[0].text.strip()
+        raw_text = response.choices[0].message.content.strip()
 
         if raw_text.startswith("```"):
             raw_text = raw_text.split("```")[1]

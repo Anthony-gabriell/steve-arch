@@ -2,8 +2,8 @@ from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
     # API Cada atributo é uma variável que será lida do .env
-    anthropic_api_key: str # ← isso diz "essa variável é um string"
-    model_name: str = "claude-sonnet-4-5"
+    openrouter_api_key: str
+    model_name: str = "nousresearch/hermes-3-llama-3.1-405b:free"
     max_tokens: int = 4096
     temperature: float = 0.7
 
